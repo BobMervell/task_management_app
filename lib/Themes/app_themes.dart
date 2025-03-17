@@ -13,7 +13,7 @@ final ThemeData lightTheme = ThemeData(
     displayLarge: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
     displayMedium: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
     displaySmall: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
-    headlineLarge: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
+    headlineLarge: TextStyle(color: const Color.fromARGB(255, 165, 48, 48), fontFamily: 'Monospace'),
     headlineMedium: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
     headlineSmall: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
     titleLarge: TextStyle(color: Colors.black, fontFamily: 'Monospace'),
