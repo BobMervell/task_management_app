@@ -1,48 +1,56 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:task_management_app/Models/task_data.dart';
 
 
 class Task extends ChangeNotifier {
   String name;
+  Color accentColor;
   String description;
   DateTime startDate;
   DateTime deadline;
   Duration estimatedDuration;
   Duration actualDuration;
-  List<Task> taskList;
+  List<Task> subTasksList;
   Status status;
-  String assignee;
+  String tags;
   PriorityLevels priority;
 
 
   Task({
     required this.name,
+    required this.accentColor,
     this.description = '',
     DateTime? startDate,
     DateTime? deadline,
     this.estimatedDuration = Duration.zero,
     this.actualDuration = Duration.zero,
-    this.taskList = const [],
+    this.subTasksList = const [],
     Status? status,
-    this.assignee = '',
+    this.tags = '',
     this.priority = PriorityLevels.unassigned,
 
-  })  : startDate = startDate ?? DateTime.now(), // not in optional above cause not constant
+  })  : 
+        startDate = startDate ?? DateTime.now(), // not in optional above cause not constant
         deadline = deadline ?? DateTime.now().add(Duration(days: 1)),
         status = status ?? Status(status:StatusType.notStarted);
 
-  void addTask(Task task) {
-    taskList.add(task);
+  void addSubTask(Task task) {
+    subTasksList.add(task);
     notifyListeners();
   }
 
-  void removeTask(Task task) {
-    taskList.remove(task);
+  void removeSubTask(Task task) {
+    subTasksList.remove(task);
     notifyListeners();
   }
 
   void updateName(String newName) {
     name = newName;
+    notifyListeners();
+  }
+
+  void updateColor(Color newColor) {
+    accentColor = newColor;
     notifyListeners();
   }
 
@@ -77,7 +85,7 @@ class Task extends ChangeNotifier {
   }
   
   void updateAssignee(String newAssignee) {
-    assignee = newAssignee;
+    tags = newAssignee;
     notifyListeners();
   }
   

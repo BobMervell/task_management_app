@@ -6,6 +6,8 @@ import 'Providers/task_provider.dart';
 import 'Models/task.dart';
 import 'Widgets/task_summary_card.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
+// ignore: unused_import
+import 'Widgets/test_widget.dart';
 
 void main() {
   runApp(
@@ -42,7 +44,7 @@ class ProjectList extends StatelessWidget {
       CarouselTest(taskProvider: taskProvider),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newProject = Task(name: 'New Project ${taskProvider.tasks.length + 1}');
+          var newProject = Task(name: 'New Project ${taskProvider.tasks.length + 1}',accentColor: Colors.red);
           taskProvider.addTask(newProject);
         },
         child: Icon(Icons.add),
@@ -55,12 +57,12 @@ class ProjectList extends StatelessWidget {
 
 
 CarouselOptions carouselTestOptions = carousel.CarouselOptions(
-          height: 200.0,
-          aspectRatio: 16 / 9,
+          height: 300.0,
           autoPlay: false,
-          autoPlayCurve: Curves.linear,
-          viewportFraction: 0.15,
-          enableInfiniteScroll: false
+          autoPlayCurve: Curves.easeInBack,
+          viewportFraction: 0.35,
+          enableInfiniteScroll: false,
+          pageSnapping: false
         );
 
 
@@ -78,8 +80,8 @@ class CarouselTest extends StatelessWidget {
     return carousel.CarouselSlider(
       options: carouselTestOptions,
       items: taskProvider.tasks.map((task) {
-        return TaskSummaryCard(
-            task: Task(name: "test"), 
+        return ProjectSummaryCard(
+            task: Task(name: "Project ",accentColor: Colors.blue), 
             onEdit: () {
               //TO DO add edit logic
             },

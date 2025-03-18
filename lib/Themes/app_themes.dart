@@ -5,7 +5,7 @@ final ThemeData lightTheme = ThemeData(
   primarySwatch: Colors.grey,
   primaryColor: Colors.black,
   scaffoldBackgroundColor: const Color(0xFFF1EBE4),
-  canvasColor: Colors.white,
+  canvasColor: const Color(0xFFF1EBE4),
   cardColor: const Color(0xFFF1EBE4),
   dividerColor: const Color(0xFF4F4739),
 
