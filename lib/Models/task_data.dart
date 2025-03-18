@@ -1,7 +1,14 @@
 import 'package:flutter/foundation.dart';
 
+enum PriorityLevels {
+  unassigned,
+  low,
+  medium,
+  high,
+  critical,
+}
 
-enum TaskStatusType {
+enum StatusType {
   notStarted,
   inProgress,
   completed,
@@ -9,20 +16,20 @@ enum TaskStatusType {
   cancelled,
 }
 
-class TaskStatus extends ChangeNotifier {
-  TaskStatusType status;
+class Status extends ChangeNotifier {
+  StatusType status;
   int progress;
 
-  TaskStatus({
+  Status({
     required this.status,
     this.progress = 0,
   });
 
 
   // Méthode pour mettre à jour le statut et la progression
-  void updateStatus(TaskStatusType newStatus, {int newProgress = 0}) {
+  void updateStatus(StatusType newStatus, {int newProgress = 0}) {
     status = newStatus;
-    if (newStatus == TaskStatusType.inProgress) {
+    if (newStatus == StatusType.inProgress) {
       if (newProgress >= 0 && newProgress <= 100) {
         progress = newProgress;
       }

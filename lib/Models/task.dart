@@ -1,15 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:task_management_app/Models/task_status.dart';
-
-
-enum PriorityLevels {
-  unassigned,
-  low,
-  medium,
-  high,
-  critical,
-}
-
+import 'package:task_management_app/Models/task_data.dart';
 
 
 class Task extends ChangeNotifier {
@@ -20,7 +10,7 @@ class Task extends ChangeNotifier {
   Duration estimatedDuration;
   Duration actualDuration;
   List<Task> taskList;
-  TaskStatus status;
+  Status status;
   String assignee;
   PriorityLevels priority;
 
@@ -33,13 +23,13 @@ class Task extends ChangeNotifier {
     this.estimatedDuration = Duration.zero,
     this.actualDuration = Duration.zero,
     this.taskList = const [],
-    TaskStatus? status,
+    Status? status,
     this.assignee = '',
     this.priority = PriorityLevels.unassigned,
 
   })  : startDate = startDate ?? DateTime.now(), // not in optional above cause not constant
         deadline = deadline ?? DateTime.now().add(Duration(days: 1)),
-        status = status ?? TaskStatus(status:TaskStatusType.notStarted);
+        status = status ?? Status(status:StatusType.notStarted);
 
   void addTask(Task task) {
     taskList.add(task);
@@ -81,7 +71,7 @@ class Task extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateStatus(TaskStatus newStatus) {
+  void updateStatus(Status newStatus) {
     status = newStatus;
     notifyListeners();
   }
