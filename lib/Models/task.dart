@@ -46,7 +46,7 @@ class Task extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTask(String task) {
+  void removeTask(Task task) {
     taskList.remove(task);
     notifyListeners();
   }

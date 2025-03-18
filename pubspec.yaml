@@ -9,12 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  objectbox: 4.1.0
-  objectbox_flutter_libs: 4.1.0  # If targeting mobile
+  objectbox: 4.1.0 # For local storage 
+  objectbox_flutter_libs: 4.1.0 
   encrypt: ^5.0.1  # For AES encryption
   provider: ^6.0.3  # For state management
   flutter_slidable: ^2.0.0  # For slidable items
   intl: ^0.17.0  # For date and number formatting
+  carousel_slider: ^5.0.0 
 
 
 
