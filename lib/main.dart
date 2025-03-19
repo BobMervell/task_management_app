@@ -37,11 +37,11 @@ class ProjectList extends StatelessWidget {
   Widget build(BuildContext context) {
     var taskProvider = Provider.of<TaskProvider>(context);
       final List<Task> taskList = [
-        Task(name: 'Task 1', accentColor: const Color.fromARGB(200, 244, 67, 54)),
-        Task(name: 'Task 2', accentColor: const Color.fromARGB(200, 33, 150, 243)),
-        Task(name: 'Task 3', accentColor: const Color.fromARGB(200, 76, 175, 80)),
-        Task(name: 'Task 4', accentColor: const Color.fromARGB(200, 255, 235, 59)),
-        Task(name: 'Task 5', accentColor: const Color.fromARGB(200, 156, 39, 176)),
+        Task(name: 'add procedural animation as addon', accentColor: const Color.fromARGB(200, 244, 67, 54)),
+        Task(name: 'begin devellop notion alternative', accentColor: const Color.fromARGB(200, 33, 150, 243)),
+        Task(name: 'correct robot slight feet move', accentColor: const Color.fromARGB(200, 76, 175, 80)),
+        Task(name: 'add robot controller', accentColor: const Color.fromARGB(200, 255, 235, 59)),
+        Task(name: 'ajout robot tilt', accentColor: const Color.fromARGB(200, 156, 39, 176)),
         Task(name: 'Task 6', accentColor: const Color.fromARGB(200, 255, 152, 0)),
         Task(name: 'Task 7', accentColor: const Color.fromARGB(200, 233, 30, 155)),
         Task(name: 'Task 8', accentColor: const Color.fromARGB(200, 0, 150, 136)),
@@ -71,10 +71,10 @@ class ProjectList extends StatelessWidget {
 
 
 CarouselOptions carouselTestOptions = carousel.CarouselOptions(
-          height: 300.0,
           autoPlay: false,
+          height: 400,
           autoPlayCurve: Curves.easeInBack,
-          viewportFraction: 0.3,
+          viewportFraction: 0.4,
           enableInfiniteScroll: false,
           pageSnapping: false
         );
@@ -92,16 +92,22 @@ class CarouselTest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return carousel.CarouselSlider(
-      options: carouselTestOptions,
-      items: taskProvider.tasks.map((task) {
-        return ProjectSummaryCard(
-            task: task,
-            onEdit: () {
-              print("TO DO add edit logic");
-            },
-          );
-      }).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width - MediaQuery.of(context).padding.horizontal,
+        height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical,
+        child: carousel.CarouselSlider(
+          options: carouselTestOptions,
+          items: taskProvider.tasks.map((task) {
+            return ProjectSummaryCard(
+                task: task,
+                onEdit: () {
+                },
+              );
+          }).toList(),
+        ),
+      ),
     );
   }
 }
