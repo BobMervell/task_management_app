@@ -161,15 +161,15 @@ extension StringExtension on String {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          HoverButton(
+          SliderButton(
             onProgressChanged: (newProgress) {
-            task.status.updateStatus(StatusType.inProgress, newProgress: newProgress.toInt());
+            task.status.updateStatus(StatusType.inProgress, newProgress.toInt());
             taskProvider.updateTask(task);
             },
             onPressed: () async {
               StatusType? selectedStatus = await StatusSelector.showStatusSelector(context);
               if (selectedStatus != null) {
-                task.updateStatus(Status(statusType: selectedStatus));
+                task.status.updateStatus(selectedStatus, task.status.progress);
                 taskProvider.updateTask(task);
               }
             },
@@ -270,7 +270,7 @@ class CircularSliderPainter extends CustomPainter {
 }
 
 
-class HoverButton extends StatefulWidget {
+class SliderButton extends StatefulWidget {
   final VoidCallback onPressed;
   final Color backgroundColor;
   final BorderRadius borderRadius;
@@ -278,7 +278,7 @@ class HoverButton extends StatefulWidget {
   final Task task;
   final ValueChanged<double> onProgressChanged;
 
-  HoverButton({
+  SliderButton({
     super.key,
     required this.onPressed,
     required this.backgroundColor,
@@ -289,10 +289,10 @@ class HoverButton extends StatefulWidget {
   }) : borderRadius = borderRadius ?? BorderRadius.circular(8.0);
 
   @override
-  HoverButtonState createState() => HoverButtonState();
+  SliderButtonState createState() => SliderButtonState();
 }
 
-class HoverButtonState extends State<HoverButton> {
+class SliderButtonState extends State<SliderButton> {
   bool _isHovering = false;
 
   @override
@@ -302,11 +302,10 @@ class HoverButtonState extends State<HoverButton> {
       onExit: (event) => _mouseEnter(false),
       child: GestureDetector(
         onHorizontalDragUpdate: (details) {
-          if (widget.task.status.statusType == StatusType.inProgress) {
-            double progressWidth = context.size!.width;
-            double newProgress = (details.localPosition.dx / progressWidth * 100).clamp(0, 100);
-            widget.onProgressChanged(newProgress);
-          }
+          double progressWidth = context.size!.width;
+          double newProgress = (details.localPosition.dx / progressWidth * 100).clamp(0, 100);
+          widget.onProgressChanged(newProgress);
+          
         },
         child: AnimatedContainer(
           duration: Duration(milliseconds: 300),

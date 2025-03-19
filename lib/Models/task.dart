@@ -69,10 +69,6 @@ class Task {
   void updateActualDuration(Duration newActualDuration) {
     actualDuration = newActualDuration;
   }
-
-  void updateStatus(Status newStatus) {
-    status = newStatus;
-  }
   
   void updateAssignee(String newAssignee) {
     tags = newAssignee;
