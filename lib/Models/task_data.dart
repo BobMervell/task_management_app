@@ -16,35 +16,35 @@ enum StatusType {
   cancelled,
 }
 
-class Status extends ChangeNotifier {
-  StatusType status;
+class Status {
+  StatusType statusType;
   int progress;
 
   Status({
-    required this.status,
+    required this.statusType,
     this.progress = 0,
   });
 
 
-  static Color getColorForStatus(StatusType status) {
-    switch (status) {
+  static Color getColorForStatus(StatusType statusType) {
+    switch (statusType) {
       case StatusType.notStarted:
-        return Colors.grey;
+        return const Color.fromARGB(150, 158, 158, 158);
       case StatusType.inProgress:
-        return Colors.blue;
+        return const Color.fromARGB(150, 33, 150, 243);
       case StatusType.completed:
-        return Colors.green;
+        return const Color.fromARGB(150, 76, 175, 80);
       case StatusType.onHold:
-        return Colors.orange;
+        return const Color.fromARGB(150, 255, 152, 0);
       case StatusType.cancelled:
-        return Colors.red;
+        return const Color.fromARGB(150, 244, 67, 54);
       }
   }
 
 
   // Méthode pour mettre à jour le statut et la progression
   void updateStatus(StatusType newStatus, {int newProgress = 0}) {
-    status = newStatus;
+    statusType = newStatus;
     if (newStatus == StatusType.inProgress) {
       if (newProgress >= 0 && newProgress <= 100) {
         progress = newProgress;
@@ -52,6 +52,5 @@ class Status extends ChangeNotifier {
     } else {
       progress = 0;
     }
-    notifyListeners();
   }
 }

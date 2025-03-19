@@ -25,9 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Task Management',
       home: ProjectList(),
-      
       theme: lightTheme
-
       );
   }
 }
@@ -38,13 +36,29 @@ class ProjectList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var taskProvider = Provider.of<TaskProvider>(context);
+      final List<Task> taskList = [
+        Task(name: 'Task 1', accentColor: const Color.fromARGB(200, 244, 67, 54)),
+        Task(name: 'Task 2', accentColor: const Color.fromARGB(200, 33, 150, 243)),
+        Task(name: 'Task 3', accentColor: const Color.fromARGB(200, 76, 175, 80)),
+        Task(name: 'Task 4', accentColor: const Color.fromARGB(200, 255, 235, 59)),
+        Task(name: 'Task 5', accentColor: const Color.fromARGB(200, 156, 39, 176)),
+        Task(name: 'Task 6', accentColor: const Color.fromARGB(200, 255, 152, 0)),
+        Task(name: 'Task 7', accentColor: const Color.fromARGB(200, 233, 30, 155)),
+        Task(name: 'Task 8', accentColor: const Color.fromARGB(200, 0, 150, 136)),
+        Task(name: 'Task 9', accentColor: const Color.fromARGB(200, 121, 85, 72)),
+        Task(name: 'Task 10', accentColor: const Color.fromARGB(200, 63, 81, 181)),
+      ];
 
     return Scaffold(
       body: 
       CarouselTest(taskProvider: taskProvider),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newProject = Task(name: 'New Project ${taskProvider.tasks.length + 1}',accentColor: Colors.red);
+          var newProject = Task(
+            name: 'New Project ${taskProvider.tasks.length + 1}',
+            accentColor: const Color.fromARGB(200, 244, 67, 54),
+            subTasksList: taskList
+            );
           taskProvider.addTask(newProject);
         },
         child: Icon(Icons.add),
@@ -70,20 +84,8 @@ CarouselOptions carouselTestOptions = carousel.CarouselOptions(
 class CarouselTest extends StatelessWidget {
 
   final TaskProvider taskProvider;
-  final List<Task> taskList = [
-    Task(name: 'Task 1', accentColor: Colors.red),
-    Task(name: 'Task 2', accentColor: Colors.blue),
-    Task(name: 'Task 3', accentColor: Colors.green),
-    Task(name: 'Task 4', accentColor: Colors.yellow),
-    Task(name: 'Task 5', accentColor: Colors.purple),
-    Task(name: 'Task 6', accentColor: Colors.orange),
-    Task(name: 'Task 7', accentColor: Colors.pink),
-    Task(name: 'Task 8', accentColor: Colors.teal),
-    Task(name: 'Task 9', accentColor: Colors.brown),
-    Task(name: 'Task 10', accentColor: Colors.indigo),
-  ];
 
-  CarouselTest({
+  const CarouselTest({
     super.key,
     required this.taskProvider,
   });
@@ -94,9 +96,9 @@ class CarouselTest extends StatelessWidget {
       options: carouselTestOptions,
       items: taskProvider.tasks.map((task) {
         return ProjectSummaryCard(
-            task: Task(name: "Project ",accentColor: Colors.blue,subTasksList: taskList), 
+            task: task,
             onEdit: () {
-              //TO DO add edit logic
+              print("TO DO add edit logic");
             },
           );
       }).toList(),
