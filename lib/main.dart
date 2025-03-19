@@ -60,7 +60,7 @@ CarouselOptions carouselTestOptions = carousel.CarouselOptions(
           height: 300.0,
           autoPlay: false,
           autoPlayCurve: Curves.easeInBack,
-          viewportFraction: 0.35,
+          viewportFraction: 0.3,
           enableInfiniteScroll: false,
           pageSnapping: false
         );
@@ -68,12 +68,25 @@ CarouselOptions carouselTestOptions = carousel.CarouselOptions(
 
 
 class CarouselTest extends StatelessWidget {
-  const CarouselTest({
+
+  final TaskProvider taskProvider;
+  final List<Task> taskList = [
+    Task(name: 'Task 1', accentColor: Colors.red),
+    Task(name: 'Task 2', accentColor: Colors.blue),
+    Task(name: 'Task 3', accentColor: Colors.green),
+    Task(name: 'Task 4', accentColor: Colors.yellow),
+    Task(name: 'Task 5', accentColor: Colors.purple),
+    Task(name: 'Task 6', accentColor: Colors.orange),
+    Task(name: 'Task 7', accentColor: Colors.pink),
+    Task(name: 'Task 8', accentColor: Colors.teal),
+    Task(name: 'Task 9', accentColor: Colors.brown),
+    Task(name: 'Task 10', accentColor: Colors.indigo),
+  ];
+
+  CarouselTest({
     super.key,
     required this.taskProvider,
   });
-
-  final TaskProvider taskProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +94,7 @@ class CarouselTest extends StatelessWidget {
       options: carouselTestOptions,
       items: taskProvider.tasks.map((task) {
         return ProjectSummaryCard(
-            task: Task(name: "Project ",accentColor: Colors.blue), 
+            task: Task(name: "Project ",accentColor: Colors.blue,subTasksList: taskList), 
             onEdit: () {
               //TO DO add edit logic
             },

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 enum PriorityLevels {
   unassigned,
@@ -24,6 +24,22 @@ class Status extends ChangeNotifier {
     required this.status,
     this.progress = 0,
   });
+
+
+  static Color getColorForStatus(StatusType status) {
+    switch (status) {
+      case StatusType.notStarted:
+        return Colors.grey;
+      case StatusType.inProgress:
+        return Colors.blue;
+      case StatusType.completed:
+        return Colors.green;
+      case StatusType.onHold:
+        return Colors.orange;
+      case StatusType.cancelled:
+        return Colors.red;
+      }
+  }
 
 
   // Méthode pour mettre à jour le statut et la progression
