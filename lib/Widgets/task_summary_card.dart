@@ -95,20 +95,6 @@ class ProjectSummaryCard extends StatelessWidget {
       );
   }
 
-  Consumer<TaskProvider> progressSlider(int index) {
-    return Consumer<TaskProvider>(
-                    builder: (context,value,child) {
-                      return CircularSlider(
-                        progress: task.subTasksList[index].status.progress.toDouble(),
-                        backgroundColor:const Color.fromARGB(0, 0, 0, 0),
-                        progressColor: Status.getColorForStatus(task.subTasksList[index].status.statusType),
-                        circleSize: Size(20,20),
-                        circleWidth: 5,
-                      );
-                    }
-                  );
-  }
-
   Row statusButton(BuildContext context,Task task) {
     var taskProvider = Provider.of<TaskProvider>(context);
     Color statusColor = Status.getColorForStatus(task.status.statusType);
