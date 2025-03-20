@@ -45,11 +45,11 @@ class Status {
   // Méthode pour mettre à jour le statut et la progression
   void updateStatus(StatusType newStatus, int newProgress) {
     newProgress = newProgress.clamp(0, 100);
-    if (newStatus == StatusType.completed || newProgress == 100){
+    if (newStatus == StatusType.completed || (newProgress == 100 && newStatus == StatusType.inProgress)){
       statusType = StatusType.completed;
       progress = 100;
     }
-    else if (newStatus == StatusType.notStarted || newProgress == 0){
+    else if (newStatus == StatusType.notStarted || (newProgress == 0 && newStatus == StatusType.inProgress)){
       statusType = StatusType.notStarted;
       progress = 0;
     } else {
