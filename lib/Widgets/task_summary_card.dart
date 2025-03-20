@@ -5,6 +5,9 @@ import 'package:task_management_app/Providers/task_provider.dart';
 import 'dart:math';
 import 'package:task_management_app/Models/task.dart';
 
+// ignore: unused_import
+import 'package:task_management_app/Widgets/test_widget.dart';
+
 class ProjectSummaryCard extends StatelessWidget {
   final Task task;
   final VoidCallback onEdit;
@@ -97,23 +100,46 @@ class ProjectSummaryCard extends StatelessWidget {
 
   Row statusButton(BuildContext context,Task task) {
     var taskProvider = Provider.of<TaskProvider>(context);
-    Color statusColor = Status.getColorForStatus(task.status.statusType);
-    Color backgroundColor = statusColor.withAlpha(100);
-    Color progressColor = statusColor.withAlpha(200);
+    Color backgroundColor = Status.getColorForStatusLight(task.status.statusType);
+    Color progressColor = Status.getColorForStatusNormal(task.status.statusType);
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SliderButton(
+          Builder(builder: (context) {
+            return  SliderButton(
             onProgressChanged: (newProgress) {
             task.status.updateStatus(StatusType.inProgress, newProgress.toInt());
             taskProvider.updateTask(task);
             },
             onPressed: () async {
-              StatusType? selectedStatus = await StatusSelector.showStatusSelector(context);
-              if (selectedStatus != null) {
-                task.status.updateStatus(selectedStatus, task.status.progress);
-                taskProvider.updateTask(task);
-              }
+
+              StatusType? newStatusType = await showMenu<StatusType>(
+              context: context,
+              color: Theme.of(context).canvasColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              position: customPopupMenuPositionBuilder(context),
+      items: StatusType.values.map((statusType) {
+        return PopupMenuItem<StatusType>(
+          height: 30,
+          value: statusType,
+          child: Center(
+            child: SimpleButton(
+              onPressed: () => Navigator.pop(context, statusType),
+              backgroundColor: Status.getColorForStatusNormal(statusType),
+              width: 100,
+              height: 25,
+              child: Text(
+                statusType.toString().split('.').last.toReadable(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+            );
+              
+              task.status.updateStatus( newStatusType ?? task.status.statusType,task.status.progress ); //if null keep same
+              taskProvider.updateTask(task);
             },
             task: task,
             backgroundColor: backgroundColor,
@@ -124,12 +150,134 @@ class ProjectSummaryCard extends StatelessWidget {
                 task.status.statusType.toString().split('.').last.toReadable(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-            ),
+            );
+          } )
+         
         ],
       );
     }
 
+RelativeRect customPopupMenuPositionBuilder(BuildContext context) {
+    // Calculate the position of the popup menu
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    return position;
+  }
+
 }
+
+class StatusSelector extends StatelessWidget {
+  const StatusSelector({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(10),
+      width: 200,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: StatusType.values.map((statusType) {
+                return Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: SimpleButton(
+                    onPressed: () => Navigator.pop(context,statusType),
+                    backgroundColor: Status.getColorForStatusNormal(statusType),
+                    width: 100,
+                    height: 25,
+                    child: Text(
+                    statusType.toString().split('.').last.toReadable(),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                  ),
+                );
+              
+              }).toList(),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+class DropDownWithCustomButtons extends StatefulWidget {
+  const DropDownWithCustomButtons({super.key});
+
+  @override
+  DropDownWithCustomButtonsState createState() => DropDownWithCustomButtonsState();
+}
+class DropDownWithCustomButtonsState extends State<DropDownWithCustomButtons> {
+  void _showCustomMenu(BuildContext context, TapDownDetails details) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    final result = await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        details.globalPosition.dx, // Position X du clic
+        details.globalPosition.dy, // Position Y du clic
+        overlay.size.width, // Largeur de l'écran
+        overlay.size.height, // Hauteur de l'écran
+      ),
+
+
+      items: StatusType.values.map((statusType) {
+        return PopupMenuItem(
+          value: statusType,
+          child: Container(
+            padding: EdgeInsets.all(8.0),
+            child: SimpleButton(
+              onPressed: () => Navigator.pop(context, statusType),
+              backgroundColor: Status.getColorForStatusNormal(statusType),
+              width: 100,
+              height: 25,
+              child: Text(
+                statusType.toString().split('.').last.toReadable(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+
+    if (result != null) {
+      print("Sélectionné : $result");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Custom Dropdown Menu")),
+      body: GestureDetector(
+        onTapDown: (details) => _showCustomMenu(context, details),
+        child: Center(
+          child: Text("Cliquez pour ouvrir le menu"),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
 
 extension StringExtension on String {
   
@@ -148,49 +296,6 @@ extension StringExtension on String {
     return readableString[0].toUpperCase() + readableString.substring(1).toLowerCase();
   }
 }
-
-
-class StatusSelector {
-  static Future<StatusType?> showStatusSelector(BuildContext context) async {
-    return showModalBottomSheet<StatusType>(
-      context: context,
-      isScrollControlled: true, 
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(8.0),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(8)),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-              width: 2.0,
-            )
-          ),
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: StatusType.values.map((statusType) {
-                return ListTile(
-                  title: Text(statusType.toString().split('.').last.toReadable()),
-                  onTap: () {
-                    Navigator.pop(context, statusType);
-                  },
-                );
-              }).toList(),
-            ),
-        );
-      },
-    );
-  }
-}
-
-
 
 class CircularSlider extends StatelessWidget {
   final double progress;
@@ -366,6 +471,68 @@ class SliderButtonState extends State<SliderButton> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _mouseEnter(bool hovering) {
+    setState(() {
+      _isHovering = hovering;
+    });
+  }
+}
+
+
+
+class SimpleButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  final Color backgroundColor;
+  final Color hoverColor;
+  final double height;
+  final double width;
+  final BorderRadius borderRadius;
+  final Widget child;
+
+  SimpleButton({
+    super.key,
+    required this.onPressed,
+    required this.backgroundColor,
+    Color? hoverColor,
+    BorderRadius? borderRadius,
+    required this.height,
+    required this.width,
+    required this.child,
+  }) : borderRadius = borderRadius ?? BorderRadius.circular(8.0),
+       hoverColor = hoverColor?? backgroundColor;
+
+  @override
+  SimpleButtonState createState() => SimpleButtonState();
+}
+
+class SimpleButtonState extends State<SimpleButton> {
+  bool _isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (event) => _mouseEnter(true),
+      onExit: (event) => _mouseEnter(false),
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          height: widget.height,
+          width: widget.width,
+          duration: Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: _isHovering ? widget.hoverColor : widget.backgroundColor,
+            borderRadius: widget.borderRadius,
+            border: Border.all(
+              color: _isHovering ? Theme.of(context).dividerColor : Colors.transparent,
+              width: 1.0,
+            ),
+          ),
+          child: Center(child: widget.child),
         ),
       ),
     );
