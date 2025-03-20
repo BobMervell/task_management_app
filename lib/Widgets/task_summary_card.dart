@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
 import 'dart:math';
-import '../Models/task.dart';
+import 'package:task_management_app/Models/task.dart';
 
 class ProjectSummaryCard extends StatelessWidget {
   final Task task;
@@ -39,7 +39,7 @@ class ProjectSummaryCard extends StatelessWidget {
     return Consumer<TaskProvider>(
       builder: (context, value, child) {
         return SizedBox(
-          width: 500, 
+          width: 400, 
           child: Card(
             shape: RoundedRectangleBorder(
               side: BorderSide(color: const Color(0xFF4F4739), width: 3.0),
@@ -75,24 +75,17 @@ class ProjectSummaryCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      ' ${task.subTasksList[index].name} ',
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      (' ${task.subTasksList[index].name} ').truncateText(30),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     statusButton(context,task.subTasksList[index]),
-                    Consumer<TaskProvider>(
-                      builder: (context,value,child) {
-                        return CircularSlider(
-                          progress: task.subTasksList[index].status.progress.toDouble(),
-                          backgroundColor: Colors.grey[300]!,
-                          progressColor: Colors.blue,
-                          circleSize: Size(20,20),
-                          circleWidth: 5,
-                        );
-                      }
-                    )
+                    SizedBox(
+                      width: 10,
+                    ),
+                    progressSlider(index)
                   ]
                 ),
               ),
@@ -101,6 +94,69 @@ class ProjectSummaryCard extends StatelessWidget {
       );
   }
 
+  Consumer<TaskProvider> progressSlider(int index) {
+    return Consumer<TaskProvider>(
+                    builder: (context,value,child) {
+                      return CircularSlider(
+                        progress: task.subTasksList[index].status.progress.toDouble(),
+                        backgroundColor:const Color.fromARGB(0, 0, 0, 0),
+                        progressColor: Status.getColorForStatus(task.subTasksList[index].status.statusType),
+                        circleSize: Size(20,20),
+                        circleWidth: 5,
+                      );
+                    }
+                  );
+  }
+
+  Row statusButton(BuildContext context,Task task) {
+    var taskProvider = Provider.of<TaskProvider>(context);
+      
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SliderButton(
+            onProgressChanged: (newProgress) {
+            task.status.updateStatus(StatusType.inProgress, newProgress.toInt());
+            taskProvider.updateTask(task);
+            },
+            onPressed: () async {
+              StatusType? selectedStatus = await StatusSelector.showStatusSelector(context);
+              if (selectedStatus != null) {
+                task.status.updateStatus(selectedStatus, task.status.progress);
+                taskProvider.updateTask(task);
+              }
+            },
+            task: task,
+            backgroundColor: Status.getColorForStatus(task.status.statusType),
+            width: 100,
+            height: 25,
+            child: Text(
+                task.status.statusType.toString().split('.').last.toReadable(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+        ],
+      );
+    }
+
+}
+
+extension StringExtension on String {
+  
+  String truncateText(int maxLength) {
+   if (length <= maxLength) {
+      return this;
+    } else {
+      return '${substring(0, maxLength)} ... ';
+    }
+  }
+
+  String toReadable() {
+    if (isEmpty) return this;
+    String readableString = replaceAllMapped(RegExp(r'(?<!^)(?=[A-Z])'),  (match) => ' ');
+
+    return readableString[0].toUpperCase() + readableString.substring(1).toLowerCase();
+  }
 }
 
 
@@ -118,7 +174,7 @@ class StatusSelector {
       ),
       builder: (BuildContext context) {
         return Container(
-          height: 250,
+          height: 300,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(8)),
@@ -144,45 +200,6 @@ class StatusSelector {
   }
 }
 
-extension StringExtension on String {
-  
-  String toReadable() {
-    if (isEmpty) return this;
-    String readableString = replaceAllMapped(RegExp(r'(?<!^)(?=[A-Z])'),  (match) => ' ');
-
-    return readableString[0].toUpperCase() + readableString.substring(1).toLowerCase();
-  }
-}
-
-
-  Row statusButton(BuildContext context,Task task) {
-    var taskProvider = Provider.of<TaskProvider>(context);
-      
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SliderButton(
-            onProgressChanged: (newProgress) {
-            task.status.updateStatus(StatusType.inProgress, newProgress.toInt());
-            taskProvider.updateTask(task);
-            },
-            onPressed: () async {
-              StatusType? selectedStatus = await StatusSelector.showStatusSelector(context);
-              if (selectedStatus != null) {
-                task.status.updateStatus(selectedStatus, task.status.progress);
-                taskProvider.updateTask(task);
-              }
-            },
-            task: task,
-            backgroundColor: Status.getColorForStatus(task.status.statusType),
-            child: Text(
-                task.status.statusType.toString().split('.').last.toReadable(),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ),
-        ],
-      );
-    }
 
 
 class CircularSlider extends StatelessWidget {
@@ -272,17 +289,21 @@ class CircularSliderPainter extends CustomPainter {
 
 class SliderButton extends StatefulWidget {
   final VoidCallback onPressed;
+  final ValueChanged<double> onProgressChanged;
   final Color backgroundColor;
+  final double height;
+  final double width;
   final BorderRadius borderRadius;
   final Widget child;
   final Task task;
-  final ValueChanged<double> onProgressChanged;
 
   SliderButton({
     super.key,
     required this.onPressed,
     required this.backgroundColor,
     BorderRadius? borderRadius,
+    required this.height,
+    required this.width,
     required this.child,
     required this.task,
     required this.onProgressChanged,
@@ -308,6 +329,8 @@ class SliderButtonState extends State<SliderButton> {
           
         },
         child: AnimatedContainer(
+          height: widget.height,
+          width: widget.width,
           duration: Duration(milliseconds: 300),
           decoration: BoxDecoration(
             color: widget.backgroundColor,

@@ -1,13 +1,13 @@
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:flutter/material.dart' hide CarouselController;
-import 'Themes/app_themes.dart';
+import 'package:task_management_app/Themes/app_themes.dart';
 import 'package:provider/provider.dart';
-import 'Providers/task_provider.dart';
-import 'Models/task.dart';
-import 'Widgets/task_summary_card.dart';
+import 'package:task_management_app/Providers/task_provider.dart';
+import 'package:task_management_app/Models/task.dart';
+import 'package:task_management_app/Widgets/task_summary_card.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
 // ignore: unused_import
-import 'Widgets/test_widget.dart';
+import 'package:task_management_app/Widgets/test_widget.dart';
 
 void main() {
   runApp(
@@ -72,7 +72,7 @@ class ProjectList extends StatelessWidget {
 
 CarouselOptions carouselTestOptions = carousel.CarouselOptions(
           autoPlay: false,
-          height: 400,
+          height: 300,
           autoPlayCurve: Curves.easeInBack,
           viewportFraction: 0.4,
           enableInfiniteScroll: false,
