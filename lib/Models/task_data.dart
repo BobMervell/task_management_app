@@ -70,19 +70,29 @@ class Status {
         return const Color.fromARGB(100, 244, 67, 54);
       }
   }
-  // Méthode pour mettre à jour le statut et la progression
-  void updateStatus(StatusType newStatus, int newProgress) {
-    newProgress = newProgress.clamp(0, 100);
-    if (newStatus == StatusType.completed || (newProgress == 100 && newStatus == StatusType.inProgress)){
-      statusType = StatusType.completed;
-      progress = 100;
-    }
-    else if (newStatus == StatusType.notStarted || (newProgress == 0 && newStatus == StatusType.inProgress)){
-      statusType = StatusType.notStarted;
-      progress = 0;
-    } else {
-      statusType = newStatus;
-      progress = newProgress;
-    }
+
+void updateStatus(StatusType newStatus, {int? newProgress}) {
+  if (newProgress == null) {
+    statusType = newStatus;
+    if (statusType == StatusType.completed ) {progress = 100;}
+    else if (statusType == StatusType.notStarted ) {progress = 0;  }
   }
+  else if (newStatus == StatusType.completed || newProgress >= 100 ) {
+    statusType = StatusType.completed;
+    progress = 100;
+  }
+  else if (newStatus == StatusType.notStarted || newProgress <= 0 ) {
+    statusType = StatusType.notStarted;
+    progress = 0;
+  }
+  else if (newStatus == StatusType.inProgress && (statusType == StatusType.completed || statusType == StatusType.notStarted)) {
+    statusType = StatusType.inProgress;
+    progress = 50;
+  }
+   else {
+    statusType = newStatus;
+    progress = newProgress;
+  }
+}
+
 }

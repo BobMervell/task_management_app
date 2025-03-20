@@ -108,7 +108,7 @@ class ProjectSummaryCard extends StatelessWidget {
           Builder(builder: (context) {
             return  SliderButton(
             onProgressChanged: (newProgress) {
-            task.status.updateStatus(StatusType.inProgress, newProgress.toInt());
+            task.status.updateStatus(StatusType.inProgress, newProgress: newProgress.toInt());
             taskProvider.updateTask(task);
             },
             onPressed: () async {
@@ -138,7 +138,7 @@ class ProjectSummaryCard extends StatelessWidget {
       }).toList(),
             );
               
-              task.status.updateStatus( newStatusType ?? task.status.statusType,task.status.progress ); //if null keep same
+              task.status.updateStatus( newStatusType ?? task.status.statusType); //if null keep same
               taskProvider.updateTask(task);
             },
             task: task,
@@ -416,63 +416,65 @@ class SliderButtonState extends State<SliderButton> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (event) => _mouseEnter(true),
-      onExit: (event) => _mouseEnter(false),
-      child: GestureDetector(
-        onHorizontalDragUpdate: (details) {
-          double progressWidth = context.size!.width;
-          double newProgress = (details.localPosition.dx / progressWidth * 100).clamp(0, 100);
-          setState(() {
-            _progress = newProgress;
-          });
-          widget.onProgressChanged(newProgress);
-        },
-        child: AnimatedContainer(
-          height: widget.height,
-          width: widget.width,
-          duration: Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            borderRadius: widget.borderRadius,
-            border: Border.all(
-              color: _isHovering ? Theme.of(context).dividerColor : Colors.transparent,
-              width: 1.0,
+    return Consumer<TaskProvider>(
+      builder: (context,taskProvider,child) {
+        _progress = widget.task.status.progress.toDouble();
+      return MouseRegion(
+        onEnter: (event) => _mouseEnter(true),
+        onExit: (event) => _mouseEnter(false),
+        child: GestureDetector(
+          onHorizontalDragUpdate: (details) {
+            double progressWidth = context.size!.width;
+            _progress = (details.localPosition.dx / progressWidth * 100).clamp(0, 100);
+            widget.onProgressChanged(_progress);
+         },
+          child: AnimatedContainer(
+            height: widget.height,
+            width: widget.width,
+            duration: Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              borderRadius: widget.borderRadius,
+              border: Border.all(
+                color: _isHovering ? Theme.of(context).dividerColor : Colors.transparent,
+                width: 1.0,
+              ),
+            ),
+            child: Stack(
+              children: [
+                // Background container
+                Container(
+                  decoration: BoxDecoration(
+                    color: widget.backgroundColor,
+                    borderRadius: widget.borderRadius,
+                  ),
+                ),
+                // Progress container
+                FractionallySizedBox(
+                  widthFactor: _progress / 100,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: widget.progressColor,
+                      borderRadius: widget.borderRadius,
+                    ),
+                  ),
+                ),
+                // Button content
+                TextButton(
+                  onPressed: widget.onPressed,
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: widget.borderRadius,
+                    ),
+                  ),
+                  child: widget.child,
+                ),
+              ],
             ),
           ),
-          child: Stack(
-            children: [
-              // Background container
-              Container(
-                decoration: BoxDecoration(
-                  color: widget.backgroundColor,
-                  borderRadius: widget.borderRadius,
-                ),
-              ),
-              // Progress container
-              FractionallySizedBox(
-                widthFactor: _progress / 100,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: widget.progressColor,
-                    borderRadius: widget.borderRadius,
-                  ),
-                ),
-              ),
-              // Button content
-              TextButton(
-                onPressed: widget.onPressed,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: widget.borderRadius,
-                  ),
-                ),
-                child: widget.child,
-              ),
-            ],
-          ),
         ),
-      ),
+      );
+      }
     );
   }
 
