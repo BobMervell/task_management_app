@@ -37,10 +37,10 @@ class ProjectList extends StatelessWidget {
   Widget build(BuildContext context) {
     var taskProvider = Provider.of<TaskProvider>(context);
       final List<Task> taskList = [
-        Task(name: 'add procedural animation as addon', accentColor: const Color.fromARGB(200, 244, 67, 54)),
-        Task(name: 'begin devellop notion alternative', accentColor: const Color.fromARGB(200, 33, 150, 243)),
-        Task(name: 'correct robot slight feet move', accentColor: const Color.fromARGB(200, 76, 175, 80)),
-        Task(name: 'add robot controller', accentColor: const Color.fromARGB(200, 255, 235, 59)),
+        Task(name: 'add procedural animation as addon with lots of text i mean very mmuch a lot of text ike its absur this amount of text my guy', accentColor: const Color.fromARGB(200, 244, 67, 54)),
+        Task(name: 'begin devellop notion alternative with text', accentColor: const Color.fromARGB(200, 33, 150, 243)),
+        Task(name: 'correct robot slight feet move with', accentColor: const Color.fromARGB(200, 76, 175, 80)),
+        Task(name: 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', accentColor: const Color.fromARGB(200, 255, 235, 59)),
         Task(name: 'ajout robot tilt', accentColor: const Color.fromARGB(200, 156, 39, 176)),
         Task(name: 'Task 6', accentColor: const Color.fromARGB(200, 255, 152, 0)),
         Task(name: 'Task 7', accentColor: const Color.fromARGB(200, 233, 30, 155)),
@@ -50,8 +50,11 @@ class ProjectList extends StatelessWidget {
       ];
 
     return Scaffold(
-      body: 
-      CarouselTest(taskProvider: taskProvider),
+      body: Column(
+        children: [
+          Expanded(child: ProjectCarousel(taskProvider: taskProvider)),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           var newProject = Task(
@@ -70,46 +73,37 @@ class ProjectList extends StatelessWidget {
 
 
 
-CarouselOptions carouselTestOptions = carousel.CarouselOptions(
-          autoPlay: false,
-          height: 300,
-          autoPlayCurve: Curves.easeInBack,
-          viewportFraction: 0.4,
-          enableInfiniteScroll: false,
-          pageSnapping: false
-        );
-
-
-
-class CarouselTest extends StatelessWidget {
-
+class ProjectCarousel extends StatefulWidget {
   final TaskProvider taskProvider;
-
-  const CarouselTest({
+  const ProjectCarousel({
     super.key,
     required this.taskProvider,
   });
+  @override
+  ProjectCarouselState createState() => ProjectCarouselState();
+}
+
+class ProjectCarouselState extends State<ProjectCarousel> {
+  final CarouselOptions carouselOptions = CarouselOptions(
+    autoPlay: false,
+    height: 300,
+    autoPlayCurve: Curves.easeInBack,
+    viewportFraction: 0.4,
+    enableInfiniteScroll: false,
+    pageSnapping: false,
+    scrollDirection: Axis.horizontal,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width - MediaQuery.of(context).padding.horizontal,
-        height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical,
-        child: carousel.CarouselSlider(
-          options: carouselTestOptions,
-          items: taskProvider.tasks.map((task) {
-            return ProjectSummaryCard(
-                task: task,
-                onEdit: () {
-                },
-              );
-          }).toList(),
-        ),
-      ),
+    return carousel.CarouselSlider(
+      options: carouselOptions,
+      items: widget.taskProvider.tasks.map((task) {
+        return ProjectSummaryCard(
+          task: task,
+          onEdit: () {},
+        );
+      }).toList(),
     );
   }
 }
-
-
