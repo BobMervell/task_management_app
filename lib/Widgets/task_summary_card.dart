@@ -40,6 +40,7 @@ class ProjectSummaryCard extends StatelessWidget {
       builder: (context, value, child) {
         return SizedBox(
           width: 400, 
+          height: 300,
           child: Card(
             shape: RoundedRectangleBorder(
               side: BorderSide(color: const Color(0xFF4F4739), width: 3.0),
@@ -71,21 +72,21 @@ class ProjectSummaryCard extends StatelessWidget {
           itemBuilder: (BuildContext context,int index ){
             return InkWell(
               onTap: () {
+                print("edit task");
+                print(task.subTasksList[index].name);
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      (' ${task.subTasksList[index].name} ').truncateText(30),
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    Expanded(
+                      child: Text(
+                        (' ${task.subTasksList[index].name} '),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                     statusButton(context,task.subTasksList[index]),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    progressSlider(index)
                   ]
                 ),
               ),
@@ -110,7 +111,9 @@ class ProjectSummaryCard extends StatelessWidget {
 
   Row statusButton(BuildContext context,Task task) {
     var taskProvider = Provider.of<TaskProvider>(context);
-      
+    Color statusColor = Status.getColorForStatus(task.status.statusType);
+    Color backgroundColor = statusColor.withAlpha(100);
+    Color progressColor = statusColor.withAlpha(200);
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -127,7 +130,8 @@ class ProjectSummaryCard extends StatelessWidget {
               }
             },
             task: task,
-            backgroundColor: Status.getColorForStatus(task.status.statusType),
+            backgroundColor: backgroundColor,
+            progressColor: progressColor,
             width: 100,
             height: 25,
             child: Text(
@@ -291,6 +295,7 @@ class SliderButton extends StatefulWidget {
   final VoidCallback onPressed;
   final ValueChanged<double> onProgressChanged;
   final Color backgroundColor;
+  final Color progressColor;
   final double height;
   final double width;
   final BorderRadius borderRadius;
@@ -301,6 +306,7 @@ class SliderButton extends StatefulWidget {
     super.key,
     required this.onPressed,
     required this.backgroundColor,
+    required this.progressColor,
     BorderRadius? borderRadius,
     required this.height,
     required this.width,
@@ -315,6 +321,7 @@ class SliderButton extends StatefulWidget {
 
 class SliderButtonState extends State<SliderButton> {
   bool _isHovering = false;
+  double _progress = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -325,22 +332,43 @@ class SliderButtonState extends State<SliderButton> {
         onHorizontalDragUpdate: (details) {
           double progressWidth = context.size!.width;
           double newProgress = (details.localPosition.dx / progressWidth * 100).clamp(0, 100);
+          setState(() {
+            _progress = newProgress;
+          });
           widget.onProgressChanged(newProgress);
-          
         },
         child: AnimatedContainer(
           height: widget.height,
           width: widget.width,
           duration: Duration(milliseconds: 300),
           decoration: BoxDecoration(
-            color: widget.backgroundColor,
             borderRadius: widget.borderRadius,
             border: Border.all(
               color: _isHovering ? Theme.of(context).dividerColor : Colors.transparent,
               width: 1.0,
             ),
           ),
-          child: TextButton(
+          child: Stack(
+            children: [
+              // Background container
+              Container(
+                decoration: BoxDecoration(
+                  color: widget.backgroundColor,
+                  borderRadius: widget.borderRadius,
+                ),
+              ),
+              // Progress container
+              FractionallySizedBox(
+                widthFactor: _progress / 100,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: widget.progressColor,
+                    borderRadius: widget.borderRadius,
+                  ),
+                ),
+              ),
+              // Button content
+              TextButton(
                 onPressed: widget.onPressed,
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.transparent,
@@ -348,8 +376,10 @@ class SliderButtonState extends State<SliderButton> {
                     borderRadius: widget.borderRadius,
                   ),
                 ),
-                child:widget.child
+                child: widget.child,
               ),
+            ],
+          ),
         ),
       ),
     );

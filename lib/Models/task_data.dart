@@ -29,15 +29,15 @@ class Status {
   static Color getColorForStatus(StatusType statusType) {
     switch (statusType) {
       case StatusType.notStarted:
-        return const Color.fromARGB(150, 158, 158, 158);
+        return const Color.fromARGB(255, 158, 158, 158);
       case StatusType.inProgress:
-        return const Color.fromARGB(150, 33, 150, 243);
+        return const Color.fromARGB(255, 33, 150, 243);
       case StatusType.completed:
-        return const Color.fromARGB(150, 76, 175, 80);
+        return const Color.fromARGB(255, 76, 175, 80);
       case StatusType.onHold:
-        return const Color.fromARGB(150, 255, 152, 0);
+        return const Color.fromARGB(255, 255, 152, 0);
       case StatusType.cancelled:
-        return const Color.fromARGB(150, 244, 67, 54);
+        return const Color.fromARGB(255, 244, 67, 54);
       }
   }
 
