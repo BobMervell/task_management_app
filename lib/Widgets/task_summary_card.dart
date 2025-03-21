@@ -4,6 +4,7 @@ import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
 import 'dart:math';
 import 'package:task_management_app/Models/task.dart';
+import 'package:task_management_app/Widgets/task_edition_dialog.dart';
 
 // ignore: unused_import
 import 'package:task_management_app/Widgets/test_widget.dart';
@@ -75,8 +76,12 @@ class ProjectSummaryCard extends StatelessWidget {
           itemBuilder: (BuildContext context,int index ){
             return InkWell(
               onTap: () {
-                print("edit task");
-                print(task.subTasksList[index].name);
+                 showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return TaskEditDialog(task: task.subTasksList[index]);
+                  },
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -130,7 +135,6 @@ class ProjectSummaryCard extends StatelessWidget {
               height: 25,
               child: Text(
                 statusType.toString().split('.').last.toReadable(),
-                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
           ),
@@ -148,7 +152,6 @@ class ProjectSummaryCard extends StatelessWidget {
             height: 25,
             child: Text(
                 task.status.statusType.toString().split('.').last.toReadable(),
-                style: Theme.of(context).textTheme.bodyMedium,
               ),
             );
           } )
@@ -183,7 +186,6 @@ class StatusSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(10),
-      width: 200,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -207,76 +209,6 @@ class StatusSelector extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-class DropDownWithCustomButtons extends StatefulWidget {
-  const DropDownWithCustomButtons({super.key});
-
-  @override
-  DropDownWithCustomButtonsState createState() => DropDownWithCustomButtonsState();
-}
-class DropDownWithCustomButtonsState extends State<DropDownWithCustomButtons> {
-  void _showCustomMenu(BuildContext context, TapDownDetails details) async {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-
-    final result = await showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        details.globalPosition.dx, // Position X du clic
-        details.globalPosition.dy, // Position Y du clic
-        overlay.size.width, // Largeur de l'écran
-        overlay.size.height, // Hauteur de l'écran
-      ),
-
-
-      items: StatusType.values.map((statusType) {
-        return PopupMenuItem(
-          value: statusType,
-          child: Container(
-            padding: EdgeInsets.all(8.0),
-            child: SimpleButton(
-              onPressed: () => Navigator.pop(context, statusType),
-              backgroundColor: Status.getColorForStatusNormal(statusType),
-              width: 100,
-              height: 25,
-              child: Text(
-                statusType.toString().split('.').last.toReadable(),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-
-    if (result != null) {
-      print("Sélectionné : $result");
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Custom Dropdown Menu")),
-      body: GestureDetector(
-        onTapDown: (details) => _showCustomMenu(context, details),
-        child: Center(
-          child: Text("Cliquez pour ouvrir le menu"),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-
-
 
 
 extension StringExtension on String {
@@ -461,12 +393,6 @@ class SliderButtonState extends State<SliderButton> {
                 // Button content
                 TextButton(
                   onPressed: widget.onPressed,
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: widget.borderRadius,
-                    ),
-                  ),
                   child: widget.child,
                 ),
               ],

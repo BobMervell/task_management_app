@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_options.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide CarouselController;
 import 'package:task_management_app/Themes/app_themes.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,8 @@ import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Widgets/task_summary_card.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
+import 'package:flutter_quill/flutter_quill.dart' as quill;
+
 // ignore: unused_import
 import 'package:task_management_app/Widgets/test_widget.dart';
 
@@ -15,17 +18,25 @@ void main() {
       create: (context) => TaskProvider(),
       child: MyApp(),
     )
-    );
+  );
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: lightTheme,
+      localizationsDelegates: [
+        DefaultCupertinoLocalizations.delegate,
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+        quill.FlutterQuillLocalizations.delegate, // Ajoutez ce délégué
+      ],
       title: 'Task Management',
       home: ProjectList(),
-      theme: lightTheme
       );
   }
 }
