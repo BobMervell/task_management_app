@@ -5,7 +5,7 @@ import 'package:task_management_app/Models/task_data.dart';
 class Task {
   String name;
   Color accentColor;
-  String description;
+  String summary;
   DateTime startDate;
   DateTime deadline;
   Duration estimatedDuration;
@@ -19,7 +19,7 @@ class Task {
   Task({
     required this.name,
     required this.accentColor,
-    this.description = '',
+    this.summary = '',
     DateTime? startDate,
     DateTime? deadline,
     this.estimatedDuration = Duration.zero,
@@ -50,8 +50,8 @@ class Task {
     accentColor = newColor;
   }
 
-  void updateDescription(String newDescription) {
-    description = newDescription;
+  void updateSummary(String newSummary) {
+    summary = newSummary;
   }
 
   void updateStartDate(DateTime newStartDate) {
