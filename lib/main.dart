@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide CarouselController;
 import 'package:task_management_app/Themes/app_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
+import 'package:task_management_app/Providers/tags_provider.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Widgets/task_summary_card.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
@@ -12,10 +13,14 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 // ignore: unused_import
 import 'package:task_management_app/Widgets/test_widget.dart';
 
+
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => TaskProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TaskProvider()),
+        ChangeNotifierProvider(create: (context) => AvailableTags()),
+      ],
       child: MyApp(),
     )
   );

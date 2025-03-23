@@ -4,6 +4,8 @@ import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
+import 'package:task_management_app/Widgets/tags_editor.dart';
+
 
 class TaskEditDialog extends StatefulWidget {
   final Task task;
@@ -56,6 +58,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(), 
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,7 +67,10 @@ class TaskEditDialogState extends State<TaskEditDialog> {
               SizedBox(height: 20),
               RichTextEditor(editorTitle: "Summary",),
               SizedBox(height: 20),
-              editableText(context,_tagsController,"Tags"),
+              TagEditorScreen(),
+              SizedBox(height: 20),
+              editableText(context,_nameController,"Name"),
+              SizedBox(height: 20),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -97,19 +103,6 @@ class TaskEditDialogState extends State<TaskEditDialog> {
         style: Theme.of(context).textTheme.bodyMedium,
         decoration: InputDecoration(
           labelText: titleString,
-          labelStyle: Theme.of(context).textTheme.titleLarge,
-          enabledBorder:UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1.0,
-            )
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 2.0,
-            )
-          ),
         ),
       );
   }

@@ -1,5 +1,23 @@
 import 'package:flutter/material.dart';
 
+
+ThemeData textThemeData = ThemeData(
+  textTheme: TextTheme(
+    displayLarge: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold, color: darkColor, fontFamily: 'Monospace'),
+    displayMedium: TextStyle(fontSize: 36.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
+    displaySmall: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
+    headlineLarge: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
+    headlineMedium: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
+    headlineSmall: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
+    titleLarge: TextStyle(fontSize: 28.0,color: darkColor, fontFamily: 'Monospace'),
+    titleMedium: TextStyle(fontSize: 24.0,color: darkColor, fontFamily: 'Monospace'),
+    titleSmall: TextStyle(fontSize: 20.0,color: darkColor, fontFamily: 'Monospace'),
+    bodyLarge: TextStyle(fontSize: 18.0,color: darkColor, fontFamily: 'Monospace'),
+    bodyMedium: TextStyle(fontSize: 16.0,color: darkColor, fontFamily: 'Monospace'),
+    bodySmall: TextStyle(fontSize: 14.0,color: darkColor, fontFamily: 'Monospace'),
+  ),
+);
+
 // Couleurs principales
 const Color darkColor = Color(0xFF4F4739);
 const Color lightColor = Color(0xFFF1EBE4);
@@ -18,40 +36,47 @@ ThemeData lightTheme = ThemeData(
 
 
  textTheme: TextTheme(
-    displayLarge: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold, color: darkColor, fontFamily: 'Monospace'),
-    displayMedium: TextStyle(fontSize: 36.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
-    displaySmall: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
-    headlineLarge: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
-    headlineMedium: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
-    headlineSmall: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold,color: darkColor, fontFamily: 'Monospace'),
-    titleLarge: TextStyle(fontSize: 28.0,color: darkColor, fontFamily: 'Monospace'),
-    titleMedium: TextStyle(fontSize: 24.0,color: darkColor, fontFamily: 'Monospace'),
-    titleSmall: TextStyle(fontSize: 20.0,color: darkColor, fontFamily: 'Monospace'),
-    bodyLarge: TextStyle(fontSize: 18.0,color: darkColor, fontFamily: 'Monospace'),
-    bodyMedium: TextStyle(fontSize: 16.0,color: darkColor, fontFamily: 'Monospace'),
-    bodySmall: TextStyle(fontSize: 14.0,color: darkColor, fontFamily: 'Monospace'),
-  ),
+    displayLarge: textThemeData.textTheme.displayLarge,
+    displayMedium: textThemeData.textTheme.displayMedium,
+    displaySmall: textThemeData.textTheme.displaySmall,
+    headlineLarge: textThemeData.textTheme.headlineLarge,
+    headlineMedium: textThemeData.textTheme.headlineMedium,
+    headlineSmall: textThemeData.textTheme.headlineSmall,
+    titleLarge: textThemeData.textTheme.titleLarge,
+    titleMedium: textThemeData.textTheme.titleMedium,
+    titleSmall: textThemeData.textTheme.titleSmall,
+    bodyLarge: textThemeData.textTheme.bodyLarge,
+    bodyMedium: textThemeData.textTheme.bodyMedium,
+    bodySmall: textThemeData.textTheme.bodySmall,
+ ),
 
   // AppBar Theme
   appBarTheme: AppBarTheme(
     color: lightColor,
     iconTheme: IconThemeData(color: darkColor),
-    titleTextStyle: TextStyle(color: darkColor, fontSize: 20.0, fontWeight: FontWeight.bold),
+    titleTextStyle: textThemeData.textTheme.displayLarge,
   ),
 
   // Input Decoration Theme
   inputDecorationTheme: InputDecorationTheme(
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
-      borderSide: BorderSide(color: darkColor, width: 2.0),
+    border: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: darkColor,
+              width: 1.0,
+            )
     ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
-      borderSide: BorderSide(color: accentColor, width: 2.0),
+    focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: darkColor,
+              width: 1.5,
+            )
     ),
+      
     hintStyle: TextStyle(color: darkColor.withAlpha(150)),
-    labelStyle: TextStyle(color: darkColor),
+    labelStyle: textThemeData.textTheme.headlineLarge,
   ),
+
+  
 
   // Card Theme
   cardTheme: CardTheme(
@@ -82,8 +107,7 @@ ThemeData lightTheme = ThemeData(
   chipTheme: ChipThemeData(
     backgroundColor: lightColor,
     selectedColor: darkColor,
-    labelStyle: TextStyle(color: darkColor),
-    secondaryLabelStyle: TextStyle(color: lightColor),
+    labelStyle: textThemeData.textTheme.headlineSmall,
   ),
 
   /* // ElevatedButton Theme
