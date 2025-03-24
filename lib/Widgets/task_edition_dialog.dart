@@ -7,6 +7,8 @@ import 'package:task_management_app/Widgets/color_picker.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
 import 'package:task_management_app/Widgets/task_summary_card.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
+
 
 class TaskEditDialog extends StatefulWidget {
   final Task task;
@@ -20,7 +22,7 @@ class TaskEditDialog extends StatefulWidget {
 class TaskEditDialogState extends State<TaskEditDialog> {
   late TextEditingController _nameController;
   late Color _accentColor;
-  late TextEditingController _summaryController;
+  late quill.QuillController _descriptionController;
   late List<String> _tags;
   late PriorityLevels _oldPriority;
   late Status _oldStatus;
@@ -32,9 +34,13 @@ class TaskEditDialogState extends State<TaskEditDialog> {
   @override
   void initState() {
     super.initState();
+    quill.Document _descriptionDoc = widget.task.description;
     _nameController = TextEditingController(text: widget.task.name);
-    _summaryController = TextEditingController(text: widget.task.summary);
-    _tags = List<String>.from(widget.task.tags); // Initialiser avec les tags actuels
+    _descriptionController = quill.QuillController(
+      document: _descriptionDoc,
+      selection: TextSelection.collapsed(offset: _descriptionDoc.toPlainText().length.clamp(0,_descriptionDoc.length-1))
+      );
+    _tags = List<String>.from(widget.task.tags);
     _startDate = widget.task.startDate;
     _deadline = widget.task.deadline;
     _accentColor = widget.task.accentColor;
@@ -110,7 +116,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
                 ],
               ),
               SizedBox(height: 20),
-              RichTextEditor(editorTitle: "Summary"),
+              RichTextEditor(editorTitle: "Description",controller: _descriptionController),
               SizedBox(height: 20),
               TagEditorScreen(initialTags: widget.task.tags, tags: _tags, onTagsChanged: (newTags) {
                 setState(() {
@@ -125,7 +131,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
               ElevatedButton(
                 onPressed: () {
                   widget.task.updateName(_nameController.text);
-                  widget.task.updateSummary(_summaryController.text);
+                  widget.task.updateDescription(_descriptionController.document);
                   widget.task.updateTags(_tags);
                   widget.task.updateColor(_accentColor);
                   taskProvider.updateTask(widget.task);

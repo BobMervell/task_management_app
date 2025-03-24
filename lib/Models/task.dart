@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:task_management_app/Models/task_data.dart';
 
 
 class Task {
   String name;
   Color accentColor;
-  String summary;
+  Document description;
   DateTime startDate;
   DateTime deadline;
   Duration estimatedDuration;
@@ -19,7 +20,7 @@ class Task {
   Task({
     required this.name,
     required this.accentColor,
-    this.summary = '',
+    Document? description,
     DateTime? startDate,
     DateTime? deadline,
     this.estimatedDuration = Duration.zero,
@@ -29,7 +30,7 @@ class Task {
     this.tags = const [],
     this.priority = PriorityLevels.unassigned,
 
-  })  : 
+  })  : description = description?? Document(),
         startDate = startDate ?? DateTime.now(), // not in optional above cause not constant
         deadline = deadline ?? DateTime.now().add(Duration(days: 1)),
         status = status ?? Status(statusType:StatusType.notStarted);
@@ -50,8 +51,8 @@ class Task {
     accentColor = newColor;
   }
 
-  void updateSummary(String newSummary) {
-    summary = newSummary;
+  void updateDescription(Document newDescription) {
+    description = newDescription;
   }
 
   void updateStartDate(DateTime newStartDate) {

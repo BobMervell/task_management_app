@@ -4,10 +4,13 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 class RichTextEditor extends StatefulWidget {
 
   final String editorTitle;
+  final quill.QuillController controller;
+
 
   const RichTextEditor({
     super.key,
-    this.editorTitle = "",
+    required this.editorTitle,
+    required this.controller,
     });
 
 
@@ -16,7 +19,6 @@ class RichTextEditor extends StatefulWidget {
 }
 
 class RichTextEditorState extends State<RichTextEditor> with SingleTickerProviderStateMixin {
-  final quill.QuillController _controller = quill.QuillController.basic();
   final double heightRatio;
   bool _isToolbarVisible = false;
   late AnimationController _heightAnimationController;
@@ -96,7 +98,7 @@ void initState() {
             );
           },
           child: quill.QuillSimpleToolbar(
-            controller: _controller,
+            controller: widget.controller,
             config: toolbarConfig(context),
           ),
         ),
@@ -114,7 +116,7 @@ void initState() {
             children: [
               Flexible(
                 child: quill.QuillEditor.basic(
-                  controller: _controller,
+                  controller: widget.controller,
                   scrollController: ScrollController(),
                   focusNode: FocusNode(),
                   config : quill.QuillEditorConfig(
