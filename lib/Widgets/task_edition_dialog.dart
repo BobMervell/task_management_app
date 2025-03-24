@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
+import 'package:task_management_app/Themes/app_themes.dart';
+import 'package:task_management_app/Widgets/color_picker.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
 
@@ -10,7 +12,7 @@ import 'package:task_management_app/Widgets/tags_editor.dart';
 class TaskEditDialog extends StatefulWidget {
   final Task task;
 
-  const TaskEditDialog({required this.task});
+  const TaskEditDialog({super.key, required this.task});
 
   @override
   TaskEditDialogState createState() => TaskEditDialogState();
@@ -63,13 +65,59 @@ class TaskEditDialogState extends State<TaskEditDialog> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              editableText(context,_nameController,"Name"),
+              Row(
+                children: [
+                  Expanded(child: editableText(context,_nameController,"Name")),
+                  SizedBox(width: 20),
+                 ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _accentColor, // Couleur d'accentuation
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // Bordures légèrement arrondies
+                      ),
+                    ).merge(
+                      ButtonStyle(
+                        overlayColor: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.hovered)) {
+                              return _accentColor.withAlpha(45); // Couleur de survol
+                            }
+                            return Colors.transparent;
+                          },
+                        ),
+                        side: WidgetStateProperty.resolveWith<BorderSide>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.hovered)) {
+                              return BorderSide(color: Theme.of(context).dividerColor, width: 1.0); // Bordure au survol
+                            }
+                            return BorderSide.none;
+                          },
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ColorPickerDialog(
+                            onColorSelected: (Color color) {
+                              _accentColor = color;
+                              setState(() {});
+                            },
+                          );
+                        },
+                      );
+                    },
+                    child: Container(), // Conteneur vide pour remplacer le texte
+                  )
+                ],
+              ),
+              
               SizedBox(height: 20),
               RichTextEditor(editorTitle: "Summary",),
               SizedBox(height: 20),
               TagEditorScreen(),
               SizedBox(height: 20),
-              editableText(context,_nameController,"Name"),
               SizedBox(height: 20),
               SizedBox(height: 20),
               ElevatedButton(
