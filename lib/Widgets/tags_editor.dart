@@ -4,23 +4,37 @@ import 'package:task_management_app/Providers/tags_provider.dart';
 
 class TagEditorScreen extends StatefulWidget {
   final double heightRatio;
+  final List<String> initialTags;
+  final ValueChanged<List<String>> onTagsChanged;
 
-  const TagEditorScreen({super.key, this.heightRatio = 3});
+  const TagEditorScreen({
+    super.key,
+    this.heightRatio = 3,
+    required this.initialTags,
+    required this.onTagsChanged, required List<String> tags,
+  });
 
   @override
   TagEditorScreenState createState() => TagEditorScreenState();
 }
 
 class TagEditorScreenState extends State<TagEditorScreen> {
-  final List<String> _selectedTags = [];
+  late List<String> _selectedTags;
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTags = List<String>.from(widget.initialTags);
+  }
 
   void _addTag(String tag) {
     if (!_selectedTags.contains(tag)) {
       setState(() {
         _selectedTags.add(tag);
+        widget.onTagsChanged(_selectedTags);
       });
       _textController.clear();
     }
@@ -29,6 +43,7 @@ class TagEditorScreenState extends State<TagEditorScreen> {
   void _removeTag(String tag) {
     setState(() {
       _selectedTags.remove(tag);
+      widget.onTagsChanged(_selectedTags);
     });
   }
 
@@ -106,7 +121,7 @@ class TagEditorScreenState extends State<TagEditorScreen> {
           ),
           onChanged: (text) {
             setState(() {
-             _isExpanded = _textController.text.isNotEmpty;
+              _isExpanded = text.isNotEmpty;
             }); // Trigger rebuild to show suggestions
           },
         ),

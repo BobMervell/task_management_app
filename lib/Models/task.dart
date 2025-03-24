@@ -12,7 +12,7 @@ class Task {
   Duration actualDuration;
   List<Task> subTasksList;
   Status status;
-  String tags;
+  List<String> tags;
   PriorityLevels priority;
 
 
@@ -26,7 +26,7 @@ class Task {
     this.actualDuration = Duration.zero,
     this.subTasksList = const [],
     Status? status,
-    this.tags = '',
+    this.tags = const [],
     this.priority = PriorityLevels.unassigned,
 
   })  : 
@@ -70,8 +70,8 @@ class Task {
     actualDuration = newActualDuration;
   }
   
-  void updateAssignee(String newAssignee) {
-    tags = newAssignee;
+  void updateTags(List<String> newTags) {
+    tags = newTags;
   }
   
   void updatePriority(PriorityLevels newPriotity) {

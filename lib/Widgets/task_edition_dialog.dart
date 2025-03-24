@@ -3,12 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
-import 'package:task_management_app/Themes/app_themes.dart';
 import 'package:task_management_app/Widgets/color_picker.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
 import 'package:task_management_app/Widgets/task_summary_card.dart';
-
 
 class TaskEditDialog extends StatefulWidget {
   final Task task;
@@ -23,26 +21,25 @@ class TaskEditDialogState extends State<TaskEditDialog> {
   late TextEditingController _nameController;
   late Color _accentColor;
   late TextEditingController _summaryController;
-  late TextEditingController _tagsController;
-  late PriorityLevels _priority;
-  late Status _status;
+  late List<String> _tags;
+  late PriorityLevels _oldPriority;
+  late Status _oldStatus;
   late DateTime _startDate;
   late DateTime _deadline;
   late Duration _estimatedDuration;
   late Duration _actualDuration;
-
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.task.name);
     _summaryController = TextEditingController(text: widget.task.summary);
-    _tagsController = TextEditingController(text: widget.task.tags);
+    _tags = List<String>.from(widget.task.tags); // Initialiser avec les tags actuels
     _startDate = widget.task.startDate;
     _deadline = widget.task.deadline;
     _accentColor = widget.task.accentColor;
-    _status = widget.task.status;
-    _priority = widget.task.priority;
+    _oldStatus = widget.task.status;
+    _oldPriority = widget.task.priority;
     _estimatedDuration = widget.task.estimatedDuration;
     _actualDuration = widget.task.actualDuration;
   }
@@ -59,27 +56,27 @@ class TaskEditDialogState extends State<TaskEditDialog> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(), 
+          physics: BouncingScrollPhysics(),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Expanded(child: editableText(context,_nameController,"Name")),
+                  Expanded(child: editableText(context, _nameController, "Name")),
                   SizedBox(width: 20),
-                 ElevatedButton(
+                  ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _accentColor, // Couleur d'accentuation
+                      backgroundColor: _accentColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Bordures légèrement arrondies
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ).merge(
                       ButtonStyle(
                         overlayColor: WidgetStateProperty.resolveWith<Color>(
                           (Set<WidgetState> states) {
                             if (states.contains(WidgetState.hovered)) {
-                              return _accentColor.withAlpha(45); // Couleur de survol
+                              return _accentColor.withAlpha(45);
                             }
                             return Colors.transparent;
                           },
@@ -87,7 +84,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
                         side: WidgetStateProperty.resolveWith<BorderSide>(
                           (Set<WidgetState> states) {
                             if (states.contains(WidgetState.hovered)) {
-                              return BorderSide(color: Theme.of(context).dividerColor, width: 1.0); // Bordure au survol
+                              return BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
                             }
                             return BorderSide.none;
                           },
@@ -100,40 +97,47 @@ class TaskEditDialogState extends State<TaskEditDialog> {
                         builder: (BuildContext context) {
                           return ColorPickerDialog(
                             onColorSelected: (Color color) {
-                              _accentColor = color;
-                              setState(() {});
+                              setState(() {
+                                _accentColor = color;
+                              });
                             },
                           );
                         },
                       );
                     },
-                    child: Container(), // Conteneur vide pour remplacer le texte
-                  )
+                    child: Container(),
+                  ),
                 ],
               ),
               SizedBox(height: 20),
-              RichTextEditor(editorTitle: "Summary",),
+              RichTextEditor(editorTitle: "Summary"),
               SizedBox(height: 20),
-              TagEditorScreen(),
+              TagEditorScreen(initialTags: widget.task.tags, tags: _tags, onTagsChanged: (newTags) {
+                setState(() {
+                  _tags = newTags;
+                });
+              }),
               SizedBox(height: 20),
               statusEditor(context, widget.task),
               SizedBox(height: 20),
               priorityEditor(context, widget.task),
               SizedBox(height: 20),
-              
               ElevatedButton(
                 onPressed: () {
                   widget.task.updateName(_nameController.text);
                   widget.task.updateSummary(_summaryController.text);
-                  widget.task.updateAssignee(_tagsController.text);
+                  widget.task.updateTags(_tags);
+                  widget.task.updateColor(_accentColor);
                   taskProvider.updateTask(widget.task);
-                  // Update other attributes as needed
+                  //status and priority button already independantly update task
                   Navigator.of(context).pop();
                 },
                 child: Text('Save'),
               ),
               TextButton(
                 onPressed: () {
+                  widget.task.status.updateStatus(_oldStatus.statusType);
+                  widget.task.updatePriority(_oldPriority);
                   Navigator.of(context).pop();
                 },
                 child: Text('Cancel'),
@@ -145,7 +149,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     );
   }
 
-  TextField editableText(BuildContext context,TextEditingController textController, String titleString) {
+  TextField editableText(BuildContext context, TextEditingController textController, String titleString) {
     return TextField(
       cursorColor: Theme.of(context).dividerColor,
       controller: textController,
@@ -156,26 +160,74 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     );
   }
 
-  Row statusEditor(BuildContext context,Task task){
+  Row statusEditor(BuildContext context, Task task) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Status: ",style: Theme.of(context).textTheme.headlineSmall),
-        statusButton(context,task),
-      ]
+        Text("Status: ", style: Theme.of(context).textTheme.headlineSmall),
+        statusButton(context, task),
+      ],
     );
   }
 
-Row priorityEditor(BuildContext context,Task task){
+  Row priorityEditor(BuildContext context, Task task) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Priority: ",style: Theme.of(context).textTheme.headlineSmall),
-        priorityButton(context,task),
-      ]
+        Text("Priority: ", style: Theme.of(context).textTheme.headlineSmall),
+        priorityButton(context, task),
+      ],
     );
   }
-
 }
+/* 
+class TagEditorScreen extends StatelessWidget {
+  final List<String> tags;
+  final ValueChanged<List<String>> onTagsChanged;
 
+  const TagEditorScreen({super.key, required this.tags, required this.onTagsChanged});
 
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Tags", style: Theme.of(context).textTheme.headlineSmall),
+        SizedBox(height: 8.0),
+        Wrap(
+          spacing: 8.0,
+          children: tags.map((tag) {
+            return Chip(
+              label: Text(tag, style: Theme.of(context).textTheme.labelLarge),
+              backgroundColor: Theme.of(context).canvasColor,
+              deleteIcon: Icon(Icons.close),
+              onDeleted: () {
+                List<String> newTags = List.from(tags)..remove(tag);
+                onTagsChanged(newTags);
+              },
+            );
+          }).toList(),
+        ),
+        SizedBox(height: 8.0),
+        TextField(
+          decoration: InputDecoration(
+            labelText: 'Add a tag',
+            suffixIcon: IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                // Logique pour ajouter un tag
+              },
+            ),
+          ),
+          onSubmitted: (value) {
+            if (value.isNotEmpty && !tags.contains(value)) {
+              List<String> newTags = List.from(tags)..add(value);
+              onTagsChanged(newTags);
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+ */
