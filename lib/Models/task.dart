@@ -77,4 +77,53 @@ class Task {
   void updatePriority(PriorityLevels newPriotity) {
     priority = newPriotity;
   }
+
+   static Color getColorForPriorityAccent(PriorityLevels priority) {
+    switch (priority) {
+      case PriorityLevels.unassigned:
+        return Colors.grey;
+      case PriorityLevels.low:
+        return Colors.green;
+      case PriorityLevels.medium:
+        return Colors.orange;
+      case PriorityLevels.high:
+        return Colors.red;
+      case PriorityLevels.critical:
+        return Colors.purple;
+    }
+  }
+
+      // Fonction pour obtenir la couleur en fonction de la priorité
+  static Color getColorForPriorityNormal(PriorityLevels priority) {
+    switch (priority) {
+      case PriorityLevels.unassigned:
+        return Colors.grey.withAlpha(200);
+      case PriorityLevels.low:
+        return Colors.green.withAlpha(200);
+      case PriorityLevels.medium:
+        return Colors.orange.withAlpha(200);
+      case PriorityLevels.high:
+        return Colors.red.withAlpha(200);
+      case PriorityLevels.critical:
+        return Colors.purple.withAlpha(200);
+    }
+  }
+
+      // Fonction pour obtenir la couleur en fonction de la priorité
+  static Color getColorForPriorityLight(PriorityLevels priority) {
+    switch (priority) {
+      case PriorityLevels.unassigned:
+        return Colors.grey.withAlpha(100);
+      case PriorityLevels.low:
+        return Colors.green.withAlpha(100);
+      case PriorityLevels.medium:
+        return Colors.orange.withAlpha(100);
+      case PriorityLevels.high:
+        return Colors.red.withAlpha(100);
+      case PriorityLevels.critical:
+        return Colors.purple.withAlpha(100);
+    }
+  }
+
+
 }

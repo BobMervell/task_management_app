@@ -103,6 +103,25 @@ class ProjectSummaryCard extends StatelessWidget {
       );
   }
 
+
+}
+
+
+RelativeRect customPopupMenuPositionBuilder(BuildContext context) {
+    // Calculate the position of the popup menu
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    return position;
+  }
+
   Row statusButton(BuildContext context,Task task) {
     var taskProvider = Provider.of<TaskProvider>(context);
     Color backgroundColor = Status.getColorForStatusLight(task.status.statusType);
@@ -160,56 +179,57 @@ class ProjectSummaryCard extends StatelessWidget {
       );
     }
 
-RelativeRect customPopupMenuPositionBuilder(BuildContext context) {
-    // Calculate the position of the popup menu
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset.zero, ancestor: overlay),
-        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
+Row priorityButton(BuildContext context, Task task) {
+  var taskProvider = Provider.of<TaskProvider>(context);
+  Color backgroundColor = Task.getColorForPriorityNormal(task.priority); // Fonction pour obtenir la couleur de la priorité
 
-    return position;
-  }
-
-}
-
-class StatusSelector extends StatelessWidget {
-  const StatusSelector({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: StatusType.values.map((statusType) {
-                return Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: SimpleButton(
-                    onPressed: () => Navigator.pop(context,statusType),
-                    backgroundColor: Status.getColorForStatusNormal(statusType),
-                    width: 100,
-                    height: 25,
-                    child: Text(
-                    statusType.toString().split('.').last.toReadable(),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                                ),
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Builder(builder: (context) {
+        return SimpleButton(
+          backgroundColor: backgroundColor,
+          height: 25,
+          width: 100,
+          child: Text(
+            task.priority.toString().split('.').last.toReadable(),
+            style: Theme.of(context).textTheme.labelLarge,
+             ),
+          onPressed: () async {
+            PriorityLevels? newPriority = await showMenu<PriorityLevels>(
+              context: context,
+              color: Theme.of(context).canvasColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              position: customPopupMenuPositionBuilder(context),
+              items: PriorityLevels.values.map((priority) {
+                return PopupMenuItem<PriorityLevels>(
+                  height: 30,
+                  value: priority,
+                  child: Center(
+                    child: SimpleButton(
+                      onPressed: () => Navigator.pop(context, priority),
+                      backgroundColor: Task.getColorForPriorityNormal(priority),
+                      width: 100,
+                      height: 25,
+                      child: Text(
+                        priority.toString().split('.').last.toReadable(),
+                      ),
+                    ),
                   ),
                 );
-              
               }).toList(),
-      ),
-    );
-  }
-}
+            );
 
+            if (newPriority != null) {
+              task.priority = newPriority;
+              taskProvider.updateTask(task);
+            }
+          },
+        );
+      }),
+    ],
+  );
+}
 
 extension StringExtension on String {
   
@@ -313,7 +333,6 @@ class CircularSliderPainter extends CustomPainter {
   }
 }
 
-
 class SliderButton extends StatefulWidget {
   final VoidCallback onPressed;
   final ValueChanged<double> onProgressChanged;
@@ -410,8 +429,6 @@ class SliderButtonState extends State<SliderButton> {
     });
   }
 }
-
-
 
 class SimpleButton extends StatefulWidget {
   final VoidCallback onPressed;

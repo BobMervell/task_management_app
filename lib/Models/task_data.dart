@@ -25,7 +25,6 @@ class Status {
     this.progress = 0,
   });
 
-
   static Color getColorForStatusAccent(StatusType statusType) {
     switch (statusType) {
       case StatusType.notStarted:
@@ -56,7 +55,7 @@ class Status {
       }
   }
 
-    static Color getColorForStatusLight(StatusType statusType) {
+  static Color getColorForStatusLight(StatusType statusType) {
     switch (statusType) {
       case StatusType.notStarted:
         return const Color.fromARGB(100, 158, 158, 158);

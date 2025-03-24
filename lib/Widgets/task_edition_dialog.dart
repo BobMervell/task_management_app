@@ -7,6 +7,7 @@ import 'package:task_management_app/Themes/app_themes.dart';
 import 'package:task_management_app/Widgets/color_picker.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
+import 'package:task_management_app/Widgets/task_summary_card.dart';
 
 
 class TaskEditDialog extends StatefulWidget {
@@ -20,18 +21,16 @@ class TaskEditDialog extends StatefulWidget {
 
 class TaskEditDialogState extends State<TaskEditDialog> {
   late TextEditingController _nameController;
+  late Color _accentColor;
   late TextEditingController _summaryController;
   late TextEditingController _tagsController;
+  late PriorityLevels _priority;
+  late Status _status;
   late DateTime _startDate;
   late DateTime _deadline;
-  late Color _accentColor;
-  late Status _status;
-  late PriorityLevels _priority;
   late Duration _estimatedDuration;
   late Duration _actualDuration;
-  final bool _isNameHovered = false;
-  final bool _isDescriptionHovered = false;
-  final bool _isTagsHovered = false;
+
 
   @override
   void initState() {
@@ -112,14 +111,16 @@ class TaskEditDialogState extends State<TaskEditDialog> {
                   )
                 ],
               ),
-              
               SizedBox(height: 20),
               RichTextEditor(editorTitle: "Summary",),
               SizedBox(height: 20),
               TagEditorScreen(),
               SizedBox(height: 20),
+              statusEditor(context, widget.task),
               SizedBox(height: 20),
+              priorityEditor(context, widget.task),
               SizedBox(height: 20),
+              
               ElevatedButton(
                 onPressed: () {
                   widget.task.updateName(_nameController.text);
@@ -146,13 +147,33 @@ class TaskEditDialogState extends State<TaskEditDialog> {
 
   TextField editableText(BuildContext context,TextEditingController textController, String titleString) {
     return TextField(
-        cursorColor: Theme.of(context).dividerColor,
-        controller: textController,
-        style: Theme.of(context).textTheme.bodyMedium,
-        decoration: InputDecoration(
-          labelText: titleString,
-        ),
-      );
+      cursorColor: Theme.of(context).dividerColor,
+      controller: textController,
+      style: Theme.of(context).textTheme.bodyMedium,
+      decoration: InputDecoration(
+        labelText: titleString,
+      ),
+    );
+  }
+
+  Row statusEditor(BuildContext context,Task task){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text("Status: ",style: Theme.of(context).textTheme.headlineSmall),
+        statusButton(context,task),
+      ]
+    );
+  }
+
+Row priorityEditor(BuildContext context,Task task){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text("Priority: ",style: Theme.of(context).textTheme.headlineSmall),
+        priorityButton(context,task),
+      ]
+    );
   }
 
 }

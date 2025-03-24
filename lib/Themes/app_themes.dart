@@ -15,6 +15,9 @@ ThemeData textThemeData = ThemeData(
     bodyLarge: TextStyle(fontSize: 18.0,color: darkColor, fontFamily: 'Monospace'),
     bodyMedium: TextStyle(fontSize: 16.0,color: darkColor, fontFamily: 'Monospace'),
     bodySmall: TextStyle(fontSize: 14.0,color: darkColor, fontFamily: 'Monospace'),
+    labelLarge: TextStyle(fontSize: 14.0,color: darkColor, fontFamily: 'Monospace'),
+    labelMedium: TextStyle(fontSize: 12.0,color: darkColor, fontFamily: 'Monospace'),
+    labelSmall: TextStyle(fontSize: 10.0,color: darkColor, fontFamily: 'Monospace'),
   ),
 );
 
@@ -48,6 +51,9 @@ ThemeData lightTheme = ThemeData(
     bodyLarge: textThemeData.textTheme.bodyLarge,
     bodyMedium: textThemeData.textTheme.bodyMedium,
     bodySmall: textThemeData.textTheme.bodySmall,
+    labelLarge: textThemeData.textTheme.labelLarge,
+    labelMedium: textThemeData.textTheme.labelMedium,
+    labelSmall: textThemeData.textTheme.labelSmall,
  ),
 
   // AppBar Theme
@@ -109,6 +115,7 @@ ThemeData lightTheme = ThemeData(
     selectedColor: darkColor,
     labelStyle: textThemeData.textTheme.headlineSmall,
   ),
+
 
   /* // ElevatedButton Theme
   elevatedButtonTheme: ElevatedButtonThemeData(
