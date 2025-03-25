@@ -31,7 +31,7 @@ class Task {
     this.priority = PriorityLevels.unassigned,
 
   })  : description = description?? Document(),
-        startDate = startDate ?? DateTime.now(), // not in optional above cause not constant
+        startDate = startDate ?? DateTime.now(),
         deadline = deadline ?? DateTime.now().add(Duration(days: 1)),
         status = status ?? Status(statusType:StatusType.notStarted);
 

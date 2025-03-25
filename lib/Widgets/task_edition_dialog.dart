@@ -8,6 +8,7 @@ import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
 import 'package:task_management_app/Widgets/task_summary_card.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'test_widget.dart';
 
 
 class TaskEditDialog extends StatefulWidget {
@@ -28,17 +29,17 @@ class TaskEditDialogState extends State<TaskEditDialog> {
   late Status _oldStatus;
   late DateTime _startDate;
   late DateTime _deadline;
-  late Duration _estimatedDuration;
-  late Duration _actualDuration;
+/*   late Duration _estimatedDuration;
+  late Duration _actualDuration; */
 
   @override
   void initState() {
     super.initState();
-    quill.Document _descriptionDoc = widget.task.description;
+    quill.Document descriptionDoc = widget.task.description;
     _nameController = TextEditingController(text: widget.task.name);
     _descriptionController = quill.QuillController(
-      document: _descriptionDoc,
-      selection: TextSelection.collapsed(offset: _descriptionDoc.toPlainText().length.clamp(0,_descriptionDoc.length-1))
+      document: descriptionDoc,
+      selection: TextSelection.collapsed(offset: descriptionDoc.toPlainText().length.clamp(0,descriptionDoc.length-1))
       );
     _tags = List<String>.from(widget.task.tags);
     _startDate = widget.task.startDate;
@@ -46,8 +47,8 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     _accentColor = widget.task.accentColor;
     _oldStatus = widget.task.status;
     _oldPriority = widget.task.priority;
-    _estimatedDuration = widget.task.estimatedDuration;
-    _actualDuration = widget.task.actualDuration;
+/*     _estimatedDuration = widget.task.estimatedDuration;
+    _actualDuration = widget.task.actualDuration; */
   }
 
   @override
@@ -128,24 +129,57 @@ class TaskEditDialogState extends State<TaskEditDialog> {
               SizedBox(height: 20),
               priorityEditor(context, widget.task),
               SizedBox(height: 20),
+              DateTimePickerWidget(
+                title: "Start",
+                includeTime: true, // Définir sur false si vous ne voulez pas inclure l'heure
+                initialDate: widget.task.startDate,
+                onDateTimeChanged: (DateTime? dateTime) {
+                  _startDate = dateTime!;
+                },
+              ),
+              SizedBox(height: 20,),
+               DateTimePickerWidget(
+                title: "Due",
+                includeTime: true, // Définir sur false si vous ne voulez pas inclure l'heure
+                initialDate: widget.task.deadline,
+                onDateTimeChanged: (DateTime? dateTime) {
+                  _deadline = dateTime!;
+                },
+              ),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   widget.task.updateName(_nameController.text);
                   widget.task.updateDescription(_descriptionController.document);
                   widget.task.updateTags(_tags);
                   widget.task.updateColor(_accentColor);
+                  widget.task.updateStartDate(_startDate);
+                  widget.task.updateDeadline(_deadline);
                   taskProvider.updateTask(widget.task);
                   //status and priority button already independantly update task
                   Navigator.of(context).pop();
                 },
+                style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).canvasColor,
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
                 child: Text('Save'),
               ),
+              SizedBox(height: 8,),
               TextButton(
                 onPressed: () {
                   widget.task.status.updateStatus(_oldStatus.statusType);
                   widget.task.updatePriority(_oldPriority);
                   Navigator.of(context).pop();
                 },
+                style: TextButton.styleFrom(
+                        backgroundColor: Colors.red.withAlpha(150),
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
                 child: Text('Cancel'),
               ),
             ],
@@ -186,54 +220,3 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     );
   }
 }
-/* 
-class TagEditorScreen extends StatelessWidget {
-  final List<String> tags;
-  final ValueChanged<List<String>> onTagsChanged;
-
-  const TagEditorScreen({super.key, required this.tags, required this.onTagsChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Tags", style: Theme.of(context).textTheme.headlineSmall),
-        SizedBox(height: 8.0),
-        Wrap(
-          spacing: 8.0,
-          children: tags.map((tag) {
-            return Chip(
-              label: Text(tag, style: Theme.of(context).textTheme.labelLarge),
-              backgroundColor: Theme.of(context).canvasColor,
-              deleteIcon: Icon(Icons.close),
-              onDeleted: () {
-                List<String> newTags = List.from(tags)..remove(tag);
-                onTagsChanged(newTags);
-              },
-            );
-          }).toList(),
-        ),
-        SizedBox(height: 8.0),
-        TextField(
-          decoration: InputDecoration(
-            labelText: 'Add a tag',
-            suffixIcon: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                // Logique pour ajouter un tag
-              },
-            ),
-          ),
-          onSubmitted: (value) {
-            if (value.isNotEmpty && !tags.contains(value)) {
-              List<String> newTags = List.from(tags)..add(value);
-              onTagsChanged(newTags);
-            }
-          },
-        ),
-      ],
-    );
-  }
-}
- */

@@ -121,7 +121,7 @@ void initState() {
                   focusNode: FocusNode(),
                   config : quill.QuillEditorConfig(
                     minHeight: MediaQuery.of(context).size.height/heightRatio ,
-                    maxHeight: MediaQuery.of(context).size.height/heightRatio ,
+                    maxHeight: 3 * MediaQuery.of(context).size.height/heightRatio ,
                     padding: EdgeInsets.all(8)
                   ),
                 ),
