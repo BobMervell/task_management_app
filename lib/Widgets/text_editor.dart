@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_quill/flutter_quill.dart';
 
 class RichTextEditor extends StatefulWidget {
-
   final String editorTitle;
-  final quill.QuillController controller;
-
+  final QuillController controller;
 
   const RichTextEditor({
     super.key,
@@ -29,38 +27,34 @@ class RichTextEditorState extends State<RichTextEditor> with SingleTickerProvide
 
   
 @override
-void initState() {
-  super.initState();
-  _heightAnimationController = AnimationController(
-    duration: const Duration(milliseconds: 300),
-    vsync: this,
-  );
-
-  _heightAnimation = Tween<double>(begin: 0.0, end: 40.0).animate(
-    CurvedAnimation(parent: _heightAnimationController, curve: Curves.easeInOut),
-  );
-
-  if (_isToolbarVisible) {
-    _heightAnimationController.forward();
-  }
-}
-
-
- void _toggleToolbar() {
-  setState(() {
-    _isToolbarVisible = !_isToolbarVisible;
+  void initState() {
+    super.initState();
+    _heightAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _heightAnimation = Tween<double>(begin: 0.0, end: 40.0).animate(
+      CurvedAnimation(parent: _heightAnimationController, curve: Curves.easeInOut),
+    );
     if (_isToolbarVisible) {
       _heightAnimationController.forward();
-    } else {
-      _heightAnimationController.reverse();
     }
-  });
-}
+  }
+
+  void _toggleToolbar() {
+    setState(() {
+      _isToolbarVisible = !_isToolbarVisible;
+      if (_isToolbarVisible) {
+        _heightAnimationController.forward();
+      } else {
+        _heightAnimationController.reverse();
+      }
+    });
+  }
 
 
-  quill.QuillSimpleToolbarConfig toolbarConfig(BuildContext context) {
-
-  return quill.QuillSimpleToolbarConfig(
+  QuillSimpleToolbarConfig toolbarConfig(BuildContext context) {
+    return QuillSimpleToolbarConfig(
     showFontFamily: false,
     showLineHeightButton: true,
     showClearFormat: false,
@@ -88,49 +82,56 @@ void initState() {
             ),
           ],
         ),
-        AnimatedBuilder(
-          animation: _heightAnimation,
-          builder: (context, child) {
-            return Container(
-              alignment: Alignment.bottomLeft,
-              height: _heightAnimation.value,
-              child: child,
-            );
-          },
-          child: quill.QuillSimpleToolbar(
-            controller: widget.controller,
-            config: toolbarConfig(context),
-          ),
-        ),
-
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-            borderRadius: BorderRadius.circular(8.0),
-            border: Border.all(
-              color:Theme.of(context).dividerColor ,
-              width: 2.0
-            ),
-          ),
-          child: Row(
-            children: [
-              Flexible(
-                child: quill.QuillEditor.basic(
-                  controller: widget.controller,
-                  scrollController: ScrollController(),
-                  focusNode: FocusNode(),
-                  config : quill.QuillEditorConfig(
-                    minHeight: MediaQuery.of(context).size.height/heightRatio ,
-                    maxHeight: 3 * MediaQuery.of(context).size.height/heightRatio ,
-                    padding: EdgeInsets.all(8)
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        animatedToolbarContainer(context),
+        textEditorContainer(context),
       ],
     );
+  }
+
+  AnimatedBuilder animatedToolbarContainer(BuildContext context) {
+    return AnimatedBuilder(
+        animation: _heightAnimation,
+        builder: (context, child) {
+          return Container(
+            alignment: Alignment.bottomLeft,
+            height: _heightAnimation.value,
+            child: child,
+          );
+        },
+        child: QuillSimpleToolbar(
+          controller: widget.controller,
+          config: toolbarConfig(context),
+        ),
+      );
+  }
+
+  Container textEditorContainer(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).canvasColor,
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(
+            color:Theme.of(context).dividerColor ,
+            width: 2.0
+          ),
+        ),
+        child: Row(
+          children: [
+            Flexible(
+              child: QuillEditor.basic(
+                controller: widget.controller,
+                scrollController: ScrollController(),
+                focusNode: FocusNode(),
+                config : QuillEditorConfig(
+                  minHeight: MediaQuery.of(context).size.height/heightRatio ,
+                  maxHeight: 3 * MediaQuery.of(context).size.height/heightRatio ,
+                  padding: EdgeInsets.all(8)
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
   }
 }
 
