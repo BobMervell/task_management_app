@@ -1,13 +1,14 @@
-import 'package:carousel_slider/carousel_options.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide CarouselController;
+import 'package:flutter/material.dart';
+
+//Widgets
+import "package:task_management_app/Widgets/carousels.dart";
+
 import 'package:task_management_app/Providers/tags_provider.dart';
 import 'package:task_management_app/Themes/app_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Models/task.dart';
-import 'package:task_management_app/Widgets/task_summary_card.dart';
-import 'package:carousel_slider/carousel_slider.dart' as carousel;
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 // ignore: unused_import
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
         DefaultCupertinoLocalizations.delegate,
         DefaultMaterialLocalizations.delegate,
         DefaultWidgetsLocalizations.delegate,
-        quill.FlutterQuillLocalizations.delegate, // Ajoutez ce délégué
+        quill.FlutterQuillLocalizations.delegate, 
       ],
       title: 'Task Management',
       home: ProjectList(),
@@ -75,7 +76,7 @@ class ProjectList extends StatelessWidget {
         onPressed: () {
           var newProject = Task(
             name: 'New Project ${taskProvider.tasks.length + 1}',
-            accentColor: const Color.fromARGB(200, 244, 67, 54),
+            accentColor: Colors.red.withAlpha(200),
             subTasksList: taskList
             );
           taskProvider.addTask(newProject);
@@ -86,40 +87,3 @@ class ProjectList extends StatelessWidget {
   }
 }
 
-
-
-
-class ProjectCarousel extends StatefulWidget {
-  final TaskProvider taskProvider;
-  const ProjectCarousel({
-    super.key,
-    required this.taskProvider,
-  });
-  @override
-  ProjectCarouselState createState() => ProjectCarouselState();
-}
-
-class ProjectCarouselState extends State<ProjectCarousel> {
-  final CarouselOptions carouselOptions = CarouselOptions(
-    autoPlay: false,
-    height: 300,
-    autoPlayCurve: Curves.easeInBack,
-    viewportFraction: 0.4,
-    enableInfiniteScroll: false,
-    pageSnapping: false,
-    scrollDirection: Axis.horizontal,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return carousel.CarouselSlider(
-      options: carouselOptions,
-      items: widget.taskProvider.tasks.map((task) {
-        return ProjectSummaryCard(
-          task: task,
-          onEdit: () {},
-        );
-      }).toList(),
-    );
-  }
-}
