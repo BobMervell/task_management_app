@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management_app/Providers/tags_provider.dart';
+import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
 
 class TagEditorScreen extends StatefulWidget {
   final double heightRatio;
@@ -88,125 +89,99 @@ class TagEditorScreenState extends State<TagEditorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //Title
         Text("Tags", style: Theme.of(context).textTheme.headlineSmall),
         SizedBox(height: 8.0),
-        Wrap(
-          spacing: 8.0,
-          children: _selectedTags.map((tag) {
-            return Chip(
-              label: Text(tag, style: Theme.of(context).textTheme.labelLarge),
-              backgroundColor: Theme.of(context).canvasColor,
-              deleteIcon: Icon(Icons.close),
-              onDeleted: () => _removeTag(tag),
-            );
-          }).toList(),
-        ),
+        wrapSelectedTags(context),
         SizedBox(height: 8.0),
-        TextField(
-          controller: _textController,
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            labelText: 'Type tags here',
-            labelStyle: Theme.of(context).textTheme.bodyLarge,
-            suffixIcon: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                final text = _textController.text;
-                if (text.isNotEmpty) {
-                  _addTag(text);
-                  Provider.of<AvailableTags>(context, listen: false).addTag(text);
-                }
-              },
-            ),
-          ),
-          onChanged: (text) {
-            setState(() {
-              _isExpanded = text.isNotEmpty;
-            }); // Trigger rebuild to show suggestions
-          },
-        ),
-        AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          height: _isExpanded
-              ? MediaQuery.of(context).size.height / widget.heightRatio
-              : 0,
-          width: double.infinity, // Largeur étendue
-          decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).dividerColor),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          margin: EdgeInsets.only(top: 8.0),
-          padding: EdgeInsets.all(8.0),
-          child: _isExpanded
-              ? SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: _getSuggestions(_textController.text).map((tag) {
-                      return CustomButton(
-                        label: Text(tag, style: Theme.of(context).textTheme.labelLarge),
-                        onPressed: () {
-                          _addTag(tag);
-                          setState(() {
-                            _isExpanded = _textController.text.isNotEmpty;
-                          });
-                        },
-                        icon: Icon(Icons.delete),
-                        onIconPressed: () => _deleteAvailableTag(tag),
-                      );
-                    }).toList(),
-                  ),
-                )
-              : null,
-        ),
+        inputField(context),
+        animatedTagsContainer(context),
       ],
     );
   }
-}
 
-class CustomButton extends StatelessWidget {
-  final Text label;
-  final Icon icon;
-  final VoidCallback onPressed;
-  final VoidCallback onIconPressed;
+  Wrap wrapSelectedTags(BuildContext context) {
+    return Wrap(
+      spacing: 8.0,
+      children: _selectedTags.map((tag) {
+        return Chip(
+          label: Text(tag, style: Theme.of(context).textTheme.labelLarge),
+          backgroundColor: Theme.of(context).canvasColor,
+          deleteIcon: Icon(Icons.close),
+          onDeleted: () => _removeTag(tag),
+        );
+      }).toList(),
+    );
+  }
 
-  const CustomButton({super.key,
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-    required this.onIconPressed,
-  });
+  TextField inputField(BuildContext context) {
+    return TextField(
+      controller: _textController,
+      focusNode: _focusNode,
+      decoration: InputDecoration(
+        labelText: 'Type tags here',
+        labelStyle: Theme.of(context).textTheme.bodyLarge,
+        suffixIcon: IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            final text = _textController.text;
+            if (text.isNotEmpty) {
+              _addTag(text);
+              Provider.of<AvailableTags>(context, listen: false).addTag(text);
+            }
+          },
+        ),
+      ),
+      onChanged: (text) {
+        setState(() {
+          _isExpanded = text.isNotEmpty;
+        }); // Trigger rebuild to show suggestions
+      },
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
+  AnimatedContainer animatedTagsContainer(BuildContext context) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      height: _isExpanded
+        ? MediaQuery.of(context).size.height / widget.heightRatio
+        : 0,
+      width: double.infinity, // Largeur étendue
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).dividerColor),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: label,
-                ),
-                IconButton(
-                  icon: icon,
-                  onPressed: onIconPressed,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      margin: EdgeInsets.only(top: 8.0),
+      padding: EdgeInsets.all(8.0),
+      child: _isExpanded
+        ? scrollTagsContainer(context)
+      : null,
     );
   }
+
+//used inside animatedTagsContainer
+  SingleChildScrollView scrollTagsContainer(BuildContext context) {
+    return SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Wrap(
+          spacing: 8.0,
+          runSpacing: 8.0,
+          children: _getSuggestions(_textController.text).map((tag) {
+            return DualActionButton(
+              label: Text(tag, style: Theme.of(context).textTheme.labelLarge),
+              onPressed: () {
+                _addTag(tag);
+                setState(() {
+                  _isExpanded = _textController.text.isNotEmpty;
+                });
+              },
+              icon: Icon(Icons.delete),
+              onIconPressed: () => _deleteAvailableTag(tag),
+            );
+          }).toList(),
+        ),
+      );
+  }
+
 }
+
