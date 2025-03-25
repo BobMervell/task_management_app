@@ -11,8 +11,6 @@ class ColorPickerDialog extends StatefulWidget {
 }
 
 class ColorPickerDialogState extends State<ColorPickerDialog> {
-  Color? _selectedColor;
-
   final List<Color> _availableColors = [
     Colors.black.withAlpha(200),
     Colors.grey.withAlpha(200),
@@ -29,13 +27,13 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Choose a Color'),
+      title: Text('Pick a Color'),
       backgroundColor: Theme.of(context).canvasColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
       content: SizedBox(
-        width: 200.0, 
+        width: 200, 
         child: GridView.builder(
           shrinkWrap: true,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -46,63 +44,48 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
           itemCount: _availableColors.length,
           itemBuilder: (context, index) {
             Color color = _availableColors[index];
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                shadowColor: Colors.black, // Couleur de l'ombre
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                // Style pour l'état survolé
-                padding: EdgeInsets.all(8.0),
-              ).merge(
-                ButtonStyle(
-                  overlayColor: WidgetStateProperty.resolveWith<Color>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.hovered)) {
-                        return color.withAlpha(255); // Couleur de survol
-                      }
-                      return Colors.transparent;
-                    },
-                  ),
-                  elevation: WidgetStateProperty.resolveWith<double>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.hovered)) {
-                        return 8; // Élévation accrue lors du survol
-                      }
-                      return 3;
-                    },
-                  ),
-                ),
-              ),
-              onPressed: () {
-                setState(() {
-                  _selectedColor = color; // Met à jour la couleur sélectionnée
-                });
-              },
-              child: Container(),
-            );
+            return colorButton(color, context);
           },
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Ferme le dialogue sans sauvegarder
-          },
-          child: Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (_selectedColor != null) {
-              widget.onColorSelected(_selectedColor!); // Appelle le callback avec la couleur sélectionnée
-            }
-            Navigator.of(context).pop(); // Ferme le dialogue
-          },
-          child: Text('Save'),
-        ),
-      ],
     );
+  }
+
+  ElevatedButton colorButton(Color color, BuildContext context) {
+    return ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              shadowColor: Colors.black, // Couleur de l'ombre
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              padding: EdgeInsets.all(8.0),
+            ).merge(
+              ButtonStyle(
+                overlayColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.hovered)) {
+                      return color.withAlpha(255); // Couleur de survol
+                    }
+                    return Colors.transparent;
+                  },
+                ),
+                elevation: WidgetStateProperty.resolveWith<double>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.hovered)) {
+                      return 8; // Élévation accrue lors du survol
+                    }
+                    return 3;
+                  },
+                ),
+              ),
+            ),
+            onPressed: () {
+              widget.onColorSelected(color);
+              Navigator.of(context).pop();
+            },
+            child: Container(),
+          );
   }
 }
 
