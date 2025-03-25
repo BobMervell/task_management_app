@@ -4,10 +4,10 @@ import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Widgets/Components/color_picker.dart';
-import 'package:task_management_app/Widgets/text_editor.dart';
-import 'package:task_management_app/Widgets/tags_editor.dart';
+import 'package:task_management_app/Widgets/Components/text_editor.dart';
+import 'package:task_management_app/Widgets/Components/tags_editor.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'test_widget.dart';
+import 'Components/date_picker.dart';
 import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
 
 

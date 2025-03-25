@@ -71,51 +71,59 @@ class DateTimePickerWidgetState extends State<DateTimePickerWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: () => _selectDate(context),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: '${widget.title} Date',
-                border: OutlineInputBorder(),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "${_selectedDate!.toLocal()}".split(' ')[0],
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Icon(Icons.calendar_today),
-                ],
-              ),
-            ),
-          ),
-        ),
+        datePicker(context),
         if (widget.includeTime)
           SizedBox(width: 20,),
-          Expanded(
-            child: GestureDetector(
-                        onTap: () => _selectTime(context),
-                        child: InputDecorator(
+          timePicker(context),
+      ],
+    );
+  }
+
+  Expanded datePicker(BuildContext context) {
+    return Expanded(
+        child: GestureDetector(
+          onTap: () => _selectDate(context),
+          child: InputDecorator(
             decoration: InputDecoration(
-              labelText: '${widget.title} Time',
+              labelText: '${widget.title} Date',
               border: OutlineInputBorder(),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _selectedTime?.format(context) ?? '',
+                  "${_selectedDate!.toLocal()}".split(' ')[0],
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                Icon(Icons.access_time),
+                Icon(Icons.calendar_today),
               ],
             ),
-                        ),
-                      ),
           ),
-      ],
-    );
+        ),
+      );
+  }
+
+  Expanded timePicker(BuildContext context) {
+    return Expanded(
+          child: GestureDetector(
+                      onTap: () => _selectTime(context),
+                      child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: '${widget.title} Time',
+            border: OutlineInputBorder(),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _selectedTime?.format(context) ?? '',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              Icon(Icons.access_time),
+            ],
+          ),
+                      ),
+                    ),
+        );
   }
 }
