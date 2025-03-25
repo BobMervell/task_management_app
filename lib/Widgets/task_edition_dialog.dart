@@ -6,7 +6,7 @@ import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Widgets/Components/color_picker.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
-import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_quill/flutter_quill.dart';
 import 'test_widget.dart';
 import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
 
@@ -23,21 +23,22 @@ class TaskEditDialog extends StatefulWidget {
 class TaskEditDialogState extends State<TaskEditDialog> {
   late TextEditingController _nameController;
   late Color _accentColor;
-  late quill.QuillController _descriptionController;
+  late QuillController _descriptionController;
   late List<String> _tags;
   late PriorityLevels _oldPriority;
   late Status _oldStatus;
   late DateTime _startDate;
   late DateTime _deadline;
-/*   late Duration _estimatedDuration;
-  late Duration _actualDuration; */
+  //TO DO
+  late Duration _estimatedDuration;
+  late Duration _actualDuration;
 
   @override
   void initState() {
     super.initState();
-    quill.Document descriptionDoc = widget.task.description;
+    Document descriptionDoc = widget.task.description;
     _nameController = TextEditingController(text: widget.task.name);
-    _descriptionController = quill.QuillController(
+    _descriptionController = QuillController(
       document: descriptionDoc,
       selection: TextSelection.collapsed(offset: descriptionDoc.toPlainText().length.clamp(0,descriptionDoc.length-1))
       );
@@ -47,8 +48,8 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     _accentColor = widget.task.accentColor;
     _oldStatus = widget.task.status;
     _oldPriority = widget.task.priority;
-/*     _estimatedDuration = widget.task.estimatedDuration;
-    _actualDuration = widget.task.actualDuration; */
+    _estimatedDuration = widget.task.estimatedDuration;
+    _actualDuration = widget.task.actualDuration;
   }
 
   @override
@@ -70,118 +71,27 @@ class TaskEditDialogState extends State<TaskEditDialog> {
             children: [
               Row(
                 children: [
-                  Expanded(child: editableText(context, _nameController, "Name")),
+                  Expanded(child: titleEditor(context, _nameController, "Name")),
                   SizedBox(width: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _accentColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ).merge(
-                      ButtonStyle(
-                        overlayColor: WidgetStateProperty.resolveWith<Color>(
-                          (Set<WidgetState> states) {
-                            if (states.contains(WidgetState.hovered)) {
-                              return _accentColor.withAlpha(45);
-                            }
-                            return Colors.transparent;
-                          },
-                        ),
-                        side: WidgetStateProperty.resolveWith<BorderSide>(
-                          (Set<WidgetState> states) {
-                            if (states.contains(WidgetState.hovered)) {
-                              return BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
-                            }
-                            return BorderSide.none;
-                          },
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return ColorPickerDialog(
-                            onColorSelected: (Color color) {
-                              setState(() {
-                                _accentColor = color;
-                              });
-                            },
-                          );
-                        },
-                      );
-                    },
-                    child: Container(),
-                  ),
+                  colorEditor(context),
                 ],
               ),
               SizedBox(height: 20),
               RichTextEditor(editorTitle: "Description",controller: _descriptionController),
               SizedBox(height: 20),
-              TagEditorScreen(initialTags: widget.task.tags, tags: _tags, onTagsChanged: (newTags) {
-                setState(() {
-                  _tags = newTags;
-                });
-              }),
+              tagsEditor(),
               SizedBox(height: 20),
               statusEditor(context, widget.task),
               SizedBox(height: 20),
               priorityEditor(context, widget.task),
               SizedBox(height: 20),
-              DateTimePickerWidget(
-                title: "Start",
-                includeTime: true, // Définir sur false si vous ne voulez pas inclure l'heure
-                initialDate: widget.task.startDate,
-                onDateTimeChanged: (DateTime? dateTime) {
-                  _startDate = dateTime!;
-                },
-              ),
+              startDateEditor(),
               SizedBox(height: 20,),
-               DateTimePickerWidget(
-                title: "Due",
-                includeTime: true, // Définir sur false si vous ne voulez pas inclure l'heure
-                initialDate: widget.task.deadline,
-                onDateTimeChanged: (DateTime? dateTime) {
-                  _deadline = dateTime!;
-                },
-              ),
+              deadlineDateEditor(),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  widget.task.updateName(_nameController.text);
-                  widget.task.updateDescription(_descriptionController.document);
-                  widget.task.updateTags(_tags);
-                  widget.task.updateColor(_accentColor);
-                  widget.task.updateStartDate(_startDate);
-                  widget.task.updateDeadline(_deadline);
-                  taskProvider.updateTask(widget.task);
-                  //status and priority button already independantly update task
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).canvasColor,
-                        shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                child: Text('Save'),
-              ),
+              saveButton(taskProvider, context),
               SizedBox(height: 8,),
-              TextButton(
-                onPressed: () {
-                  widget.task.status.updateStatus(_oldStatus.statusType);
-                  widget.task.updatePriority(_oldPriority);
-                  Navigator.of(context).pop();
-                },
-                style: TextButton.styleFrom(
-                        backgroundColor: Colors.red.withAlpha(150),
-                        shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                child: Text('Cancel'),
-              ),
+              cancelButton(context),
             ],
           ),
         ),
@@ -189,7 +99,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     );
   }
 
-  TextField editableText(BuildContext context, TextEditingController textController, String titleString) {
+  TextField titleEditor(BuildContext context, TextEditingController textController, String titleString) {
     return TextField(
       cursorColor: Theme.of(context).dividerColor,
       controller: textController,
@@ -198,6 +108,61 @@ class TaskEditDialogState extends State<TaskEditDialog> {
         labelText: titleString,
       ),
     );
+  }
+
+  ElevatedButton colorEditor(BuildContext context) {
+    return ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _accentColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ).merge(
+                    ButtonStyle(
+                      overlayColor: WidgetStateProperty.resolveWith<Color>(
+                        (Set<WidgetState> states) {
+                          if (states.contains(WidgetState.hovered)) {
+                            return _accentColor.withAlpha(45);
+                          }
+                          return Colors.transparent;
+                        },
+                      ),
+                      side: WidgetStateProperty.resolveWith<BorderSide>(
+                        (Set<WidgetState> states) {
+                          if (states.contains(WidgetState.hovered)) {
+                            return BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
+                          }
+                          return BorderSide.none;
+                        },
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ColorPickerDialog(
+                          onColorSelected: (Color color) {
+                            setState(() {
+                              _accentColor = color;
+                            });
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: Container(),
+                );
+  }
+
+  TagEditorScreen tagsEditor() {
+    return TagEditorScreen(
+              initialTags: widget.task.tags,
+              tags: _tags, onTagsChanged: (newTags) {
+              setState(() {
+                _tags = newTags;
+              });
+            });
   }
 
   Row statusEditor(BuildContext context, Task task) {
@@ -219,4 +184,67 @@ class TaskEditDialogState extends State<TaskEditDialog> {
       ],
     );
   }
+
+  DateTimePickerWidget startDateEditor() {
+    return DateTimePickerWidget(
+              title: "Start",
+              includeTime: true, // Définir sur false si vous ne voulez pas inclure l'heure
+              initialDate: widget.task.startDate,
+              onDateTimeChanged: (DateTime? dateTime) {
+                _startDate = dateTime!;
+              },
+            );
+  }
+
+  DateTimePickerWidget deadlineDateEditor() {
+    return DateTimePickerWidget(
+              title: "Deadline",
+              includeTime: true, // Définir sur false si vous ne voulez pas inclure l'heure
+              initialDate: widget.task.deadline,
+              onDateTimeChanged: (DateTime? dateTime) {
+                _deadline = dateTime!;
+              },
+            );
+  }
+
+  ElevatedButton saveButton(TaskProvider taskProvider, BuildContext context) {
+    return ElevatedButton(
+              onPressed: () {
+                widget.task.updateName(_nameController.text);
+                widget.task.updateDescription(_descriptionController.document);
+                widget.task.updateTags(_tags);
+                widget.task.updateColor(_accentColor);
+                widget.task.updateStartDate(_startDate);
+                widget.task.updateDeadline(_deadline);
+                taskProvider.updateTask(widget.task);
+                //status and priority button already independantly update task
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).canvasColor,
+                      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+              child: Text('Save'),
+            );
+  }
+
+  TextButton cancelButton(BuildContext context) {
+    return TextButton(
+              onPressed: () {
+                widget.task.status.updateStatus(_oldStatus.statusType);
+                widget.task.updatePriority(_oldPriority);
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                      backgroundColor: Colors.red.withAlpha(150),
+                      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+              child: Text('Cancel'),
+            );
+  }
+
 }
