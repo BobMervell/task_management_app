@@ -166,7 +166,6 @@ class TaskEditDialogState extends State<TaskEditDialog> {
   TagEditorScreen tagsEditor() {
     return TagEditorScreen(
       initialTags: widget.task.tags,
-      tags: _tags,
       onTagsChanged: (newTags) {
         setState(() {
           _tags = newTags;
