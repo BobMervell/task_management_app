@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 //Widgets
-import "package:task_management_app/Widgets/carousels.dart";
+import "package:task_management_app/Widgets/Components/carousels.dart";
 
 import 'package:task_management_app/Providers/tags_provider.dart';
 import 'package:task_management_app/Themes/app_themes.dart';
