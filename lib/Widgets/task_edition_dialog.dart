@@ -3,12 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
-import 'package:task_management_app/Widgets/color_picker.dart';
+import 'package:task_management_app/Widgets/Components/color_picker.dart';
 import 'package:task_management_app/Widgets/text_editor.dart';
 import 'package:task_management_app/Widgets/tags_editor.dart';
-import 'package:task_management_app/Widgets/task_summary_card.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'test_widget.dart';
+import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
 
 
 class TaskEditDialog extends StatefulWidget {
