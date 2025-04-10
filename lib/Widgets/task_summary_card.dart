@@ -4,6 +4,8 @@ import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Widgets/task_edition_dialog.dart';
 import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
+import 'package:task_management_app/Widgets/Components/task_variables_editors.dart';
+
 
 class ProjectSummaryCard extends StatefulWidget {
   final Task task;
@@ -41,14 +43,15 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
     var titleRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: widget.task.accentColor,
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-        ),
+        ColorEditor(
+                    initialColor: widget.task.accentColor,
+                    onColorChanged: (color) {
+                      setState(() {
+                        widget.task.accentColor = color;
+                      });
+                    },
+                    size: Size(40, 40),
+                  ),
         Expanded(
           child: TextField(
             controller: _nameController,
