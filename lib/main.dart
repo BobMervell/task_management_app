@@ -69,13 +69,13 @@ class ProjectList extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Expanded(child: ProjectCarousel(taskProvider: taskProvider)),
+          Expanded(child: ProjectCarousel(taskProvider: taskProvider,height: MediaQuery.of(context).size.height * 3/4)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           var newProject = Task(
-            name: 'New Project ${taskProvider.tasks.length + 1}',
+            name: '',
             accentColor: Colors.red.withAlpha(200),
             subTasksList: taskList
             );

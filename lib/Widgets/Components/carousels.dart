@@ -14,7 +14,7 @@ class ProjectCarousel extends StatefulWidget {
   const ProjectCarousel({
     super.key,
     required this.taskProvider,
-    this.height = 300,
+    required this.height,
     this.viewportFraction = 0.4,
   });
 
