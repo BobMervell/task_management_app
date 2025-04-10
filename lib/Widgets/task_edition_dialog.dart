@@ -3,16 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:task_management_app/Models/task_data.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
-import 'package:task_management_app/Widgets/Components/color_picker.dart';
 import 'package:task_management_app/Widgets/Components/text_editor.dart';
 import 'package:task_management_app/Widgets/Components/tags_editor.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'Components/date_picker.dart';
-import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
+import 'package:task_management_app/Widgets/Components/task_variables_editors.dart';
+import 'package:task_management_app/Widgets/Components/date_picker.dart';
 
 /// A dialog widget for editing task details.
-///
-/// This widget allows users to edit various properties of a task, such as name, description, tags, status, priority, and dates.
 class TaskEditDialog extends StatefulWidget {
   final Task task;
 
@@ -23,8 +20,6 @@ class TaskEditDialog extends StatefulWidget {
 }
 
 /// State class for the TaskEditDialog widget.
-///
-/// Manages the state of the task being edited, including text controllers, colors, and other properties.
 class TaskEditDialogState extends State<TaskEditDialog> {
   late TextEditingController _nameController;
   late Color _accentColor;
@@ -76,165 +71,116 @@ class TaskEditDialogState extends State<TaskEditDialog> {
             children: [
               Row(
                 children: [
-                  Expanded(child: titleEditor(context, _nameController, "Name")),
+                  Expanded(child: TitleEditor(controller: _nameController)),
                   SizedBox(width: 20),
-                  colorEditor(context),
+                  ColorEditor(
+                    initialColor: _accentColor,
+                    onColorChanged: (color) {
+                      setState(() {
+                        _accentColor = color;
+                      });
+                    },
+                    size: Size(40, 40),
+                  ),
                 ],
               ),
               SizedBox(height: 20),
               RichTextEditor(editorTitle: "Description", controller: _descriptionController),
               SizedBox(height: 20),
-              tagsEditor(),
+              TagEditorScreen(
+                initialTags: _tags,
+                onTagsChanged: (newTags) {
+                  setState(() {
+                    _tags = newTags;
+                  });
+                },
+              ),
               SizedBox(height: 20),
-              statusEditor(context, widget.task),
+              StatusEditor(task: widget.task),
               SizedBox(height: 20),
-              priorityEditor(context, widget.task),
+              PriorityEditor(task: widget.task),
               SizedBox(height: 20),
-              startDateEditor(),
+              DateTimePickerWidget(
+                title: "Start",
+                includeTime: true,
+                initialDate: _startDate,
+                onDateTimeChanged: (dateTime) {
+                  setState(() {
+                    _startDate = dateTime!;
+                  });
+                },
+              ),
               SizedBox(height: 20),
-              deadlineDateEditor(),
+              DateTimePickerWidget(
+                title: "Deadline",
+                includeTime: true,
+                initialDate: _deadline,
+                onDateTimeChanged: (dateTime) {
+                  setState(() {
+                    _deadline = dateTime!;
+                  });
+                },
+              ),
               SizedBox(height: 20),
-              saveButton(taskProvider, context),
+              SaveButton(
+                task: widget.task,
+                taskProvider: taskProvider,
+                nameController: _nameController,
+                descriptionController: _descriptionController,
+                tags: _tags,
+                accentColor: _accentColor,
+                startDate: _startDate,
+                deadline: _deadline,
+              ),
               SizedBox(height: 8),
-              cancelButton(context),
+              CancelButton(
+                task: widget.task,
+                oldStatus: _oldStatus,
+                oldPriority: _oldPriority,
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  /// Creates a text field for editing the task name.
-  TextField titleEditor(BuildContext context, TextEditingController textController, String titleString) {
-    return TextField(
-      cursorColor: Theme.of(context).dividerColor,
-      controller: textController,
-      style: Theme.of(context).textTheme.bodyMedium,
-      decoration: InputDecoration(
-        labelText: titleString,
-      ),
-    );
-  }
 
-  /// Creates a button for selecting the task's accent color.
-  ElevatedButton colorEditor(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _accentColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ).merge(
-        ButtonStyle(
-          overlayColor: WidgetStateProperty.resolveWith<Color>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.hovered)) {
-                return _accentColor.withAlpha(45);
-              }
-              return Colors.transparent;
-            },
-          ),
-          side: WidgetStateProperty.resolveWith<BorderSide>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.hovered)) {
-                return BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
-              }
-              return BorderSide.none;
-            },
-          ),
-        ),
-      ),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ColorPickerDialog(
-              onColorSelected: (Color color) {
-                setState(() {
-                  _accentColor = color;
-                });
-              },
-            );
-          },
-        );
-      },
-      child: Container(),
-    );
-  }
+/// Creates a button to save the edited task details.
+class SaveButton extends StatelessWidget {
+  final Task task;
+  final TaskProvider taskProvider;
+  final TextEditingController nameController;
+  final QuillController descriptionController;
+  final List<String> tags;
+  final Color accentColor;
+  final DateTime startDate;
+  final DateTime deadline;
 
-  /// Creates a textfield for editing the task's tags.
-  TagEditorScreen tagsEditor() {
-    return TagEditorScreen(
-      initialTags: widget.task.tags,
-      onTagsChanged: (newTags) {
-        setState(() {
-          _tags = newTags;
-        });
-      },
-    );
-  }
+  const SaveButton({
+    super.key,
+    required this.task,
+    required this.taskProvider,
+    required this.nameController,
+    required this.descriptionController,
+    required this.tags,
+    required this.accentColor,
+    required this.startDate,
+    required this.deadline,
+  });
 
-  /// Creates a row widget for editing the task's status.
-  Row statusEditor(BuildContext context, Task task) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text("Status: ", style: Theme.of(context).textTheme.headlineSmall),
-        statusButton(context, task),
-      ],
-    );
-  }
-
-  /// Creates a row widget for editing the task's priority.
-  Row priorityEditor(BuildContext context, Task task) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text("Priority: ", style: Theme.of(context).textTheme.headlineSmall),
-        priorityButton(context, task),
-      ],
-    );
-  }
-
-  /// Creates a date picker widget for editing the task's start date.
-  DateTimePickerWidget startDateEditor() {
-    return DateTimePickerWidget(
-      title: "Start",
-      includeTime: true,
-      initialDate: widget.task.startDate,
-      onDateTimeChanged: (DateTime? dateTime) {
-        setState(() {
-          _startDate = dateTime!;
-        });
-      },
-    );
-  }
-
-  /// Creates a date picker widget for editing the task's deadline.
-  DateTimePickerWidget deadlineDateEditor() {
-    return DateTimePickerWidget(
-      title: "Deadline",
-      includeTime: true,
-      initialDate: widget.task.deadline,
-      onDateTimeChanged: (DateTime? dateTime) {
-        setState(() {
-          _deadline = dateTime!;
-        });
-      },
-    );
-  }
-
-  /// Creates a button to save the edited task details.
-  ElevatedButton saveButton(TaskProvider taskProvider, BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        widget.task.updateName(_nameController.text);
-        widget.task.updateDescription(_descriptionController.document);
-        widget.task.updateTags(_tags);
-        widget.task.updateColor(_accentColor);
-        widget.task.updateStartDate(_startDate);
-        widget.task.updateDeadline(_deadline);
-        taskProvider.updateTask(widget.task);
+        task.updateName(nameController.text);
+        task.updateDescription(descriptionController.document);
+        task.updateTags(tags);
+        task.updateColor(accentColor);
+        task.updateStartDate(startDate);
+        task.updateDeadline(deadline);
+        taskProvider.updateTask(task);
         Navigator.of(context).pop();
       },
       style: ElevatedButton.styleFrom(
@@ -246,13 +192,27 @@ class TaskEditDialogState extends State<TaskEditDialog> {
       child: Text('Save'),
     );
   }
+}
 
-  /// Creates a button to cancel the editing of the task.
-  TextButton cancelButton(BuildContext context) {
+/// Creates a button to cancel the editing of the task.
+class CancelButton extends StatelessWidget {
+  final Task task;
+  final Status oldStatus;
+  final PriorityLevels oldPriority;
+
+  const CancelButton({
+    super.key,
+    required this.task,
+    required this.oldStatus,
+    required this.oldPriority,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        widget.task.status.updateStatus(_oldStatus.statusType);
-        widget.task.updatePriority(_oldPriority);
+        task.status.updateStatus(oldStatus.statusType);
+        task.updatePriority(oldPriority);
         Navigator.of(context).pop();
       },
       style: TextButton.styleFrom(
