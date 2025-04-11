@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:task_management_app/Models/task.dart';
 
 class TaskProvider with ChangeNotifier {
-  // ignore: prefer_final_fields
-  List<Task> _tasks = [];
+  final List<Task> _tasks = [];
 
   List<Task> get tasks => _tasks;
 

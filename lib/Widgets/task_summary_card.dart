@@ -5,8 +5,9 @@ import 'package:task_management_app/Models/task.dart';
 import 'package:task_management_app/Widgets/task_edition_dialog.dart';
 import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
 import 'package:task_management_app/Widgets/Components/task_variables_editors.dart';
+import 'package:uuid/uuid.dart';
 
-
+var uuid = Uuid();
 class ProjectSummaryCard extends StatefulWidget {
   final Task task;
   final VoidCallback onEdit;
@@ -38,20 +39,27 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
     super.dispose();
   }
 
+  void _handleDeleteConfirmed(Task subTask) {
+    setState(() {
+      widget.task.subTasksList.remove(subTask);  
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     var titleRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ColorEditor(
-                    initialColor: widget.task.accentColor,
-                    onColorChanged: (color) {
-                      setState(() {
-                        widget.task.accentColor = color;
-                      });
-                    },
-                    size: Size(40, 40),
-                  ),
+          initialColor: widget.task.accentColor,
+          onColorChanged: (color) {
+            setState(() {
+              widget.task.accentColor = color;
+            });
+          },
+          size: Size(40, 40),
+        ),
         Expanded(
           child: TextField(
             controller: _nameController,
@@ -155,7 +163,12 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
         SimpleButton(
           onPressed: () {
             setState(() {
-              widget.task.addSubTask(Task(name: "New task", accentColor: Colors.white.withAlpha(200)));
+              widget.task.addSubTask(Task(
+                name: "New task",
+                accentColor: Colors.white.withAlpha(200),
+                taskID: uuid.v4(),
+                parentTaskID: widget.task.taskID,
+              ));
             });
           },
           backgroundColor: Theme.of(context).canvasColor,
@@ -185,7 +198,7 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
                           builder: (BuildContext context) {
                             return TaskEditDialog(task: subTask);
                           },
-                        );
+                        ).then((_) => setState(() {})); // Force update after dialog closes
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -214,6 +227,9 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
                             ),
                             SizedBox(width: 8.0),
                             statusButton(context, subTask),
+                            DeleteButton(
+                              onDeleteConfirmed: () => _handleDeleteConfirmed(subTask),
+                            )
                           ],
                         ),
                       ),
@@ -230,3 +246,5 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
            Theme.of(context).platform == TargetPlatform.android;
   }
 }
+
+

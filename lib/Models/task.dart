@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:task_management_app/Models/task_data.dart';
+import 'package:uuid/v4.dart';
 
 
 class Task {
@@ -15,11 +16,15 @@ class Task {
   Status status;
   List<String> tags;
   PriorityLevels priority;
+  String taskID;
+  String parentTaskID;
 
 
   Task({
     required this.name,
     required this.accentColor,
+    required this.taskID,
+    required this.parentTaskID,
     Document? description,
     DateTime? startDate,
     DateTime? deadline,
@@ -34,7 +39,7 @@ class Task {
         startDate = startDate ?? DateTime.now(),
         deadline = deadline ?? DateTime.now().add(Duration(days: 1)),
         status = status ?? Status(statusType:StatusType.notStarted);
-
+  
   void addSubTask(Task task) {
     subTasksList.add(task);
   }
@@ -79,7 +84,24 @@ class Task {
     priority = newPriotity;
   }
 
-   static Color getColorForPriorityAccent(PriorityLevels priority) {
+  void setTaskID(String newTaskID) {
+    taskID = newTaskID;
+  }
+
+  void setParentTaskID(String newParentTaskID) {
+    parentTaskID = newParentTaskID;
+  }
+
+  // Méthode statique pour obtenir une tâche par son ID
+ static Task getTaskById(String taskId, List<Task> tasks) {
+    try {
+      return tasks.firstWhere((task) => task.taskID == taskId);
+    } catch (e) {
+      throw Exception('Task with ID $taskId not found');
+    }
+  }
+
+  static Color getColorForPriorityAccent(PriorityLevels priority) {
     switch (priority) {
       case PriorityLevels.unassigned:
         return Colors.grey;

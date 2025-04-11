@@ -10,9 +10,10 @@ import 'package:provider/provider.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
 import 'package:task_management_app/Models/task.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:uuid/uuid.dart';
 
-// ignore: unused_import
-import 'package:task_management_app/Widgets/Components/date_picker.dart';
+var uuid = Uuid();
+
 
 
 void main() {
@@ -53,18 +54,7 @@ class ProjectList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var taskProvider = Provider.of<TaskProvider>(context);
-      final List<Task> taskList = [
-        Task(name: 'add procedural animation as addon with lots of text i mean very mmuch a lot of text ike its absur this amount of text my guy', accentColor: const Color.fromARGB(200, 244, 67, 54)),
-        Task(name: 'begin devellop notion alternative with text', accentColor: const Color.fromARGB(200, 33, 150, 243)),
-        Task(name: 'correct robot slight feet move with', accentColor: const Color.fromARGB(200, 76, 175, 80)),
-        Task(name: 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', accentColor: const Color.fromARGB(200, 255, 235, 59)),
-        Task(name: 'ajout robot tilt', accentColor: const Color.fromARGB(200, 156, 39, 176)),
-        Task(name: 'Task 6', accentColor: const Color.fromARGB(200, 255, 152, 0)),
-        Task(name: 'Task 7', accentColor: const Color.fromARGB(200, 233, 30, 155)),
-        Task(name: 'Task 8', accentColor: const Color.fromARGB(200, 0, 150, 136)),
-        Task(name: 'Task 9', accentColor: const Color.fromARGB(200, 121, 85, 72)),
-        Task(name: 'Task 10', accentColor: const Color.fromARGB(200, 63, 81, 181)),
-      ];
+      final List<Task> taskList = [];
 
     return Scaffold(
       body: Column(
@@ -77,6 +67,8 @@ class ProjectList extends StatelessWidget {
           var newProject = Task(
             name: '',
             accentColor: Colors.red.withAlpha(200),
+            taskID: uuid.v4() ,
+            parentTaskID: "null",
             subTasksList: taskList
             );
           taskProvider.addTask(newProject);

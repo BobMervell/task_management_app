@@ -28,13 +28,13 @@ class TitleEditor extends StatelessWidget {
 class ColorEditor extends StatelessWidget {
   final Color initialColor;
   final ValueChanged<Color> onColorChanged;
-  final Size? size; // Ajout d'un paramètre optionnel pour la taille
+  final Size? size;
 
   const ColorEditor({
     super.key,
     required this.initialColor,
     required this.onColorChanged,
-    this.size, // La taille est optionnelle
+    this.size,
   });
 
   @override
@@ -45,8 +45,8 @@ class ColorEditor extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
-        minimumSize: size, // Utilise la taille si elle est fournie
-        maximumSize: size, // Utilise la taille si elle est fournie
+        minimumSize: size,
+        maximumSize: size,
       ).merge(
         ButtonStyle(
           overlayColor: WidgetStateProperty.resolveWith<Color>(
@@ -118,3 +118,47 @@ class PriorityEditor extends StatelessWidget {
     );
   }
 }
+
+/// Creates a button to delete the task with a confirmation dialog.
+class DeleteButton extends StatelessWidget {
+  final VoidCallback onDeleteConfirmed;
+
+  const DeleteButton({
+    super.key,
+    required this.onDeleteConfirmed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.delete, color: Theme.of(context).dividerColor),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Delete Task'),
+              content: Text('Are you sure you want to delete this task?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    onDeleteConfirmed(); // Call the callback when confirmed
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Delete'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+

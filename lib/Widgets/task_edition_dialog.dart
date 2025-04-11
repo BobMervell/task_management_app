@@ -52,10 +52,17 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     _actualDuration = widget.task.actualDuration;
   }
 
+  void _handleDeleteConfirmed() {
+    var taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    setState(() {
+      Task parentTask = Task.getTaskById(widget.task.parentTaskID, taskProvider.tasks);
+      parentTask.subTasksList.remove(widget.task);  
+    });
+    Navigator.of(context).pop(); // Close the edit dialog
+  }
+
   @override
   Widget build(BuildContext context) {
-    var taskProvider = Provider.of<TaskProvider>(context);
-
     return Dialog(
       backgroundColor: Theme.of(context).canvasColor,
       shape: RoundedRectangleBorder(
@@ -72,6 +79,10 @@ class TaskEditDialogState extends State<TaskEditDialog> {
               Row(
                 children: [
                   Expanded(child: TitleEditor(controller: _nameController)),
+                  SizedBox(width: 20),
+                  DeleteButton(
+                    onDeleteConfirmed: _handleDeleteConfirmed,
+                  ),
                   SizedBox(width: 20),
                   ColorEditor(
                     initialColor: _accentColor,
@@ -124,7 +135,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
               SizedBox(height: 20),
               SaveButton(
                 task: widget.task,
-                taskProvider: taskProvider,
+                taskProvider: Provider.of<TaskProvider>(context, listen: false),
                 nameController: _nameController,
                 descriptionController: _descriptionController,
                 tags: _tags,
@@ -145,6 +156,7 @@ class TaskEditDialogState extends State<TaskEditDialog> {
     );
   }
 }
+
 
 
 /// Creates a button to save the edited task details.
