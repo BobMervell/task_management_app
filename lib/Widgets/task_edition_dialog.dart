@@ -8,12 +8,20 @@ import 'package:task_management_app/Widgets/Components/tags_editor.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:task_management_app/Widgets/Components/task_variables_editors.dart';
 import 'package:task_management_app/Widgets/Components/date_picker.dart';
+import 'package:task_management_app/db_helper.dart';
+
 
 /// A dialog widget for editing task details.
 class TaskEditDialog extends StatefulWidget {
   final Task task;
+  final DatabaseHelper dbHelper;
 
-  const TaskEditDialog({super.key, required this.task});
+
+  const TaskEditDialog({
+    super.key, 
+    required this.task,
+    required this.dbHelper
+    });
 
   @override
   TaskEditDialogState createState() => TaskEditDialogState();
@@ -53,10 +61,9 @@ class TaskEditDialogState extends State<TaskEditDialog> {
   }
 
   void _handleDeleteConfirmed() {
-    var taskProvider = Provider.of<TaskProvider>(context, listen: false);
-    setState(() {
-      Task parentTask = Task.getTaskById(widget.task.parentTaskID, taskProvider.tasks);
-      parentTask.subTasksList.remove(widget.task);  
+    setState(() async {
+      Task? parentTask = await widget.dbHelper.getTaskById(widget.task.parentTaskID);
+      parentTask?.subTasksList.remove(widget.task.taskID);  
     });
     Navigator.of(context).pop(); // Close the edit dialog
   }

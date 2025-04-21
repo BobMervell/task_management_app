@@ -2,6 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart' hide CarouselController;
 import 'package:task_management_app/Widgets/task_summary_card.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
+import 'package:task_management_app/db_helper.dart';
+
 
 /// A carousel widget that displays a list of project summary cards.
 ///
@@ -10,12 +12,14 @@ class ProjectCarousel extends StatefulWidget {
   final TaskProvider taskProvider;
   final double height;
   final double viewportFraction;
+  final DatabaseHelper dbHelper;
 
   const ProjectCarousel({
     super.key,
     required this.taskProvider,
     required this.height,
     this.viewportFraction = 0.4,
+    required this.dbHelper
   });
 
   @override
@@ -31,7 +35,6 @@ class ProjectCarouselState extends State<ProjectCarousel> {
   @override
   void initState() {
     super.initState();
-    // Initialize the carousel options with the provided height and viewport fraction
     carouselOptions = CarouselOptions(
       autoPlay: false,
       height: widget.height,
@@ -47,10 +50,13 @@ class ProjectCarouselState extends State<ProjectCarousel> {
   Widget build(BuildContext context) {
     return CarouselSlider(
       options: carouselOptions,
-      items: widget.taskProvider.tasks.map((task) {
-        return ProjectSummaryCard(
+      items: widget.taskProvider.tasks
+      .where((task) => task.parentTaskID == "null")
+      .map((task) {
+                return ProjectSummaryCard(
           task: task,
           onEdit: () {},
+          dbHelper: widget.dbHelper,
         );
       }).toList(),
     );

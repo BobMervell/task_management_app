@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management_app/Providers/task_provider.dart';
@@ -6,16 +8,20 @@ import 'package:task_management_app/Widgets/task_edition_dialog.dart';
 import 'package:task_management_app/Widgets/Components/custom_buttons.dart';
 import 'package:task_management_app/Widgets/Components/task_variables_editors.dart';
 import 'package:uuid/uuid.dart';
+import 'package:task_management_app/db_helper.dart';
 
 var uuid = Uuid();
+
 class ProjectSummaryCard extends StatefulWidget {
   final Task task;
   final VoidCallback onEdit;
+  final DatabaseHelper dbHelper;
 
   const ProjectSummaryCard({
     super.key,
     required this.task,
     required this.onEdit,
+    required this.dbHelper,
   });
 
   @override
@@ -26,11 +32,23 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
   late TextEditingController _nameController;
   double _cardHeight = 300.0;
   final GlobalKey truc = GlobalKey();
+  final Map<String, Task> _loadedTasks = {}; // Liste en mémoire pour les tâches chargées
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.task.name);
+
+    // Charger les sous-tâches une fois à la création
+    for (var subTaskId in widget.task.subTasksList) {
+      widget.dbHelper.getTaskById(subTaskId).then((task) {
+        if (task != null) {
+          setState(() {
+            _loadedTasks[subTaskId] = task;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -39,15 +57,20 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
     super.dispose();
   }
 
-  void _handleDeleteConfirmed(Task subTask) {
+  void _handleDeleteConfirmed(Task subTask, TaskProvider taskProvider) {
     setState(() {
-      widget.task.subTasksList.remove(subTask);  
+      widget.task.subTasksList.remove(subTask.taskID);
+      _loadedTasks.remove(subTask.taskID);
+      taskProvider.updateTask(subTask);
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
+    if (!context.mounted) {
+      throw Exception("Invalid BuildContext");
+    }
+    var taskProvider = Provider.of<TaskProvider>(context, listen: false);
     var titleRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -55,7 +78,8 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
           initialColor: widget.task.accentColor,
           onColorChanged: (color) {
             setState(() {
-              widget.task.accentColor = color;
+              widget.task.updateColor(color);
+              widget.dbHelper.updateTask(widget.task);
             });
           },
           size: Size(40, 40),
@@ -71,7 +95,8 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
             textAlign: TextAlign.center,
             onSubmitted: (newValue) {
               setState(() {
-                widget.task.name = newValue;
+                widget.task.updateName(newValue);
+                taskProvider.updateTask(widget.task);
               });
             },
           ),
@@ -107,7 +132,7 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
                         children: [
                           titleRow,
                           Divider(color: Theme.of(context).dividerColor, thickness: 2.0),
-                          Expanded(child: scrollableTasks())
+                          Expanded(child: scrollableTasks(widget.dbHelper))
                         ],
                       ),
                     ),
@@ -157,18 +182,23 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
     );
   }
 
-  Widget scrollableTasks() {
+  Widget scrollableTasks(DatabaseHelper dbHelper) {
+    var taskProvider = Provider.of<TaskProvider>(context, listen: false);
     return Column(
       children: [
         SimpleButton(
           onPressed: () {
             setState(() {
-              widget.task.addSubTask(Task(
+              Task newTask = Task(
                 name: "New task",
                 accentColor: Colors.white.withAlpha(200),
                 taskID: uuid.v4(),
                 parentTaskID: widget.task.taskID,
-              ));
+                dbHelper: dbHelper,
+              );
+              widget.task.addSubTask(newTask);
+              _loadedTasks[newTask.taskID] = newTask; // Ajoutez la nouvelle tâche à la mémoire
+              taskProvider.updateTask(widget.task);
             });
           },
           backgroundColor: Theme.of(context).canvasColor,
@@ -183,8 +213,31 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
               : ListView.builder(
                   itemCount: widget.task.subTasksList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final subTask = widget.task.subTasksList[index];
-                    final TextEditingController subTaskController = TextEditingController(text: subTask.name);
+                    // Utilisez les tâches en mémoire si disponibles
+                    Task? task = _loadedTasks[widget.task.subTasksList[index]];
+                    if (task == null) {
+                      // Chargez la tâche si elle n'est pas en mémoire
+                      dbHelper.getTaskById(widget.task.subTasksList[index]).then((loadedTask) {
+                        if (loadedTask != null) {
+                          setState(() {
+                            _loadedTasks[widget.task.subTasksList[index]] = loadedTask;
+                          });
+                        }
+                      });
+                      return Container(); // Retourne un conteneur vide en attendant le chargement
+                    }
+                    final TextEditingController subTaskController = TextEditingController(text: task.name);
+                    final FocusNode _focusNode = FocusNode();
+
+                    _focusNode.addListener(() {
+                      if (!_focusNode.hasFocus) {
+                        String text = subTaskController.text;
+                        print("Text when focus lost: $text");
+                        task.updateName(text);
+                        taskProvider.updateTask(task);
+                      }
+                    });
+
                     return InkWell(
                       customBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -196,7 +249,7 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return TaskEditDialog(task: subTask);
+                            return TaskEditDialog(task: task, dbHelper: dbHelper);
                           },
                         ).then((_) => setState(() {})); // Force update after dialog closes
                       },
@@ -206,29 +259,39 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: TextField(
-                                controller: subTaskController,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
+                              child: Focus(
+                                focusNode: _focusNode,
+                                child: TextField(
+                                  controller: subTaskController,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    hintText: 'Task name',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                    isDense: true,
                                   ),
-                                  hintText: 'Task name',
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Réduit le padding vertical
-                                  isDense: true, // Réduit le padding interne
+                                  maxLines: null,
+                                  onSubmitted: (newValue) {
+                                    print("Submitted new value: $newValue"); // Débogage
+                                    setState(() {
+                                      task.updateName(newValue);
+                                      print("Task name updated to: ${task.name}"); // Débogage
+                                      taskProvider.updateTask(task).then((_) {
+                                        print("Task updated in database"); // Débogage
+                                      }).catchError((error) {
+                                        print("Error updating task: $error"); // Débogage
+                                      });
+                                    });
+                                  },
                                 ),
-                                maxLines: null, // Permet au texte de s'étendre sur plusieurs lignes
-                                onSubmitted: (newValue) {
-                                  setState(() {
-                                    subTask.name = newValue;
-                                  });
-                                },
                               ),
                             ),
                             SizedBox(width: 8.0),
-                            statusButton(context, subTask),
+                            statusButton(context, task),
                             DeleteButton(
-                              onDeleteConfirmed: () => _handleDeleteConfirmed(subTask),
+                              onDeleteConfirmed: () => _handleDeleteConfirmed(task, taskProvider),
                             )
                           ],
                         ),
@@ -246,5 +309,3 @@ class ProjectSummaryCardState extends State<ProjectSummaryCard> {
            Theme.of(context).platform == TargetPlatform.android;
   }
 }
-
-

@@ -70,7 +70,7 @@ class TagEditorScreenState extends State<TagEditorScreen> {
           ),
           TextButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.redAccent.withAlpha(200)),
+              backgroundColor: WidgetStateProperty.all(Colors.redAccent.withAlpha(200)),
             ),
             onPressed: () {
               Provider.of<AvailableTags>(context, listen: false).removeTag(tag);

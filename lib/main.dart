@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:task_management_app/db_helper.dart';
+
 
 //Widgets
 import "package:task_management_app/Widgets/Components/carousels.dart";
@@ -17,13 +20,17 @@ var uuid = Uuid();
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dbHelper = DatabaseHelper();
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => TaskProvider()),
+        ChangeNotifierProvider(create: (context) => TaskProvider(dbHelper: dbHelper)),
         ChangeNotifierProvider(create: (context) => AvailableTags()),
       ],
-      child: MyApp(),
+      child: MyApp(dbHelper: dbHelper),
     )
   );
 }
@@ -31,7 +38,12 @@ void main() {
 
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final DatabaseHelper dbHelper;
+  const MyApp({
+    super.key,
+    required this.dbHelper}
+    );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,23 +55,33 @@ class MyApp extends StatelessWidget {
         quill.FlutterQuillLocalizations.delegate, 
       ],
       title: 'Task Management',
-      home: ProjectList(),
+      home: ProjectList(dbHelper: dbHelper),
       );
   }
 }
 
 class ProjectList extends StatelessWidget {
-  const ProjectList({super.key});
+  final DatabaseHelper dbHelper;
+  const ProjectList({
+    super.key,
+    required this.dbHelper}
+    );
 
   @override
   Widget build(BuildContext context) {
     var taskProvider = Provider.of<TaskProvider>(context);
-      final List<Task> taskList = [];
+      final List<String> taskList = [];
 
     return Scaffold(
       body: Column(
         children: [
-          Expanded(child: ProjectCarousel(taskProvider: taskProvider,height: MediaQuery.of(context).size.height * 3/4)),
+          Expanded(child: 
+            ProjectCarousel(
+              taskProvider: taskProvider,
+              height: MediaQuery.of(context).size.height * 3/4,
+              dbHelper: dbHelper
+            )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -69,7 +91,8 @@ class ProjectList extends StatelessWidget {
             accentColor: Colors.red.withAlpha(200),
             taskID: uuid.v4() ,
             parentTaskID: "null",
-            subTasksList: taskList
+            subTasksList: taskList,
+            dbHelper: dbHelper,
             );
           taskProvider.addTask(newProject);
         },
